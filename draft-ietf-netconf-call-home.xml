@@ -1,0 +1,710 @@
+<?xml version='1.0'?>
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
+<?rfc toc="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc compact="no"?>
+<?rfc subcompact="no"?>
+<?rfc strict="no"?>
+<?rfc rfcedstyle="yes"?>
+<rfc category="std"
+     ipr="trust200902"
+     docName="draft-ietf-netconf-reverse-ssh-latest"
+     updates="4253">
+    <front>
+        <title>NETCONF Call Home</title>
+        <author initials="K.W." surname="Watsen" fullname="Kent Watsen">
+            <organization>Juniper Networks</organization>
+            <address>
+                <email>kwatsen@juniper.net</email>
+            </address>
+        </author>
+        <date month="July" year="2014"/>
+        <area>Operations</area>
+        <workgroup>NETCONF Working Group</workgroup>
+        <keyword>reverse-ssh</keyword>
+        <keyword>call-home</keyword>
+        <abstract>
+            <t>This document presents a technique for a NETCONF server to
+            request that a NETCONF client initiates a SSH connection
+            to the NETCONF server, a technique referred to as 'call home'.
+            Call home is needed to support deployments where the NETCONF
+            client is otherwise unable to initiate a SSH connection to
+            the NETCONF server directly.</t>
+        </abstract>
+    </front>
+    <middle>
+
+        <section title="Requirements Terminology">
+
+            <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
+            "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
+            and "OPTIONAL" in this document are to be interpreted as
+            described in RFC 2119 <xref target="RFC2119"/>.</t>
+
+        </section>
+        <section title="Introduction">
+
+            <t>This document presents a technique for a NETCONF server to
+            request that a NETCONF <xref target="RFC6241"/> client 
+            initiates a SSH <xref target="RFC4251"/> connection
+            to the NETCONF server, a technique referred to as 'call home'.
+            Call home is needed to support deployments where the NETCONF
+            client is otherwise unable to initiate a SSH connection to
+            the NETCONF server directly.</t>
+
+            <section title="Applicability Statement">
+              <t>The techniques described in this document are
+              suitable for network management scenarios such
+              as the ones described in section 3. However,
+              these techniques SHOULD only be used for a NETCONF
+              server to initiate a connection to a NETCONF
+              client, as described in this document.</t>
+
+              <t>The reason for this restriction is that different
+              protocols have different security assumptions.
+              The NETCONF over SSH specification requires
+              NETCONF clients and servers to verify the
+              identity of the other party before starting the
+              NETCONF protocol (section 6 of <xref target="RFC6242"/>).
+              This contrasts with the base SSH protocol, which does 
+              not require programmatic verification of the 
+              other party (section 9.3.4 of <xref target="RFC4251"/>
+              and section 4 of <xref target="RFC4252"/>).  In such
+              circumstances, allowing the SSH server to contact the
+              SSH client would open new vulnerabilities. Therefore, any
+              use of call home with SSH for purposes other than NETCONF
+              will need a thorough, contextual security analysis.</t>
+            </section>
+
+            <section title="Update to RFC 4253">
+              <t>This document updates the SSH Transport Layer Protocol
+              <xref target="RFC4253"/> only by removing the restriction
+              in Section 4 (Connection Setup) of <xref target="RFC4252"/>
+              that the SSH Client must initiate the transport connection.
+              Security implications related to this change are discussed
+              in Security Considerations (<xref target="sec-con"/>).</t>
+            </section>
+
+            <section title="Draft Naming">
+              <t>(this section should be removed if this draft becomes an RFC)</t>
+              <t>This draft's name includes the string "reverse-ssh", and
+              yet currently nowhere in this draft is there any reference 
+              to reversing SSH.  This appearant ommision comes from the
+              -05 edit of this draft, where "Reverse SSH" was changed to
+              "Call Home" throughout.  If this draft becomes an RFC, its
+              name would no longer contain the obsolete "reverse-ssh"
+              reference, thus self-correcting this inconsistency.</t>
+            </section>
+
+        </section>
+        <section title="Benefits to Device Management">
+
+            <t>The SSH protocol is nearly ubiquitous for device management,
+            as it is the transport for the command-line applications `ssh`,
+            `scp`, and `sftp` and is the required transport for the NETCONF
+            protocol <xref target="RFC6241"/>.  However, all these SSH-based
+            protocols expect the network element to be the SSH server.</t>
+            
+            <t>NETCONF over SSH Call Home enables the network element to
+            consistently be the SSH server regardless of which peer initiates 
+            the underlying TCP connection.  Maintaining the role of SSH server
+            is both necessary and desirable.  It is necessary because SSH
+            channels and subsystems can only be opened on the SSH server.
+            It is desirable because it conveniently leverages infrastructure
+            that may be deployed for host-key verification and user
+            authentication.</t>
+
+            <t>Call home is useful for both initial deployment and
+            on-going device management and may be used to enable any
+            of the following scenarios:
+                <list style="symbols">
+                  <t>The network element may proactively call home after
+                  being powered on for the first time to register
+                  itself with its management system.</t>
+                  <t>The network element may access the network in a way that
+                  dynamically assigns it an IP address and it doesn't
+                  register its assigned IP addressed to a mapping service.</t>
+                  <t>The network element may be configured in "stealth mode"
+                  and thus doesn't have any open ports for the management
+                  system to connect to.</t>
+                  <t>The network element may be deployed behind a firewall
+                  that doesn't allow SSH access to the internal network.</t>
+                  <t>The network element may be deployed behind a firewall
+                  that implements network address translation (NAT)
+                  for all internal network IP addresses, thus complicating
+                  the ability for a management system to connect to it.</t>
+                  <t>The operator may prefer to have network elements initiate
+                  management connections believing it is easier to
+                  secure one open-port in the data center than to
+                  have an open port on each network element in the network.</t>
+                </list>
+            </t>
+
+            <t>One key benefit of using SSH as the transport protocol is 
+            its ability to multiplex an unspecified number of independently
+            flow-controlled TCP sessions <xref target="RFC4254"/>.  This
+            is valuable as the network element only needs to be configured 
+            to initiate a single call home connection to a management
+            system, regardless the number of NETCONF channels the management
+            system wants to open.</t>
+        </section>
+
+        <section title="Protocol">
+
+            <t>The NETCONF server's perspective (e.g., the network element)
+              <list style="symbols">
+                <t>The NETCONF server initiates a TCP connection to
+                the NETCONF client on the IANA-assigned 
+                SSH for NETCONF Call Home port YYYY.</t>
+                <t>The TCP connection is accepted and a TCP session is
+                established.</t>
+                <t>Using this TCP connection, the NETCONF server
+                immediately starts the SSH server protocol.  That is,
+                the next message sent on the TCP stream is SSH's
+                Protocol Version Exchange message (section 4.2, <xref
+                target="RFC4253"/>).</t>
+                <t>The SSH connection is established.</t>
+              </list>
+            </t>
+
+            <t>The NETCONF client's perspective (e.g., the management system)
+              <list style="symbols">
+                <t>The NETCONF client listens for TCP connections
+                on the IANA-assigned NETCONF over SSH Call Home port YYYY.</t>
+                <t>The NETCONF client accepts an incoming TCP
+                connection and a TCP session is established.</t>
+                <t>Using this TCP connection, the NETCONF client immediately
+                starts the SSH Client protocol, starting with sending
+                the SSH's Protocol Version Exchange message (section 4.2,
+                <xref target="RFC4253"/>).</t>
+                <t>The SSH connection is established.</t>
+              </list>
+            </t>
+
+        </section>
+        <section title="SSH Server Identification and Verification">
+
+            <t>When the management system accepts a new incoming
+            TCP connection on the NETCONF over SSH Call Home port,
+            it starts the SSH client protocol.  As the SSH client, it MUST 
+            authenticate the SSH server, by both identifying the
+            network element and verifying its SSH host key.</t>
+
+            <t>Due to call home having the network element
+            initiate the TCP connection, the management system
+            MAY identify the remote peer using the source IP 
+            address of the TCP connection.  However, identifying
+            the remote peer using the source IP address of the 
+            TCP connection is NOT RECOMMENDED as it can only 
+            work in networks that use known static addresses.</t>
+
+            <t>To support network elements having dynamically-assigned
+            IP addresses, or deployed behind gateways that translate
+            their IP addresses (e.g., NAT), the management system MAY
+            identify the device using its SSH host key.  For instance,
+            a fingerprint of the network element's host key could itself
+            be used as an identifier since each device has a statistically
+            unique host key.  However, identifying the remote peer
+            using its host key directly is NOT RECOMMENDED as it
+            requires the host key to be manually verified the first
+            time the network element connects and anytime its host
+            key changes thereafter.</t>
+
+            <t>Yet another option for identifying the network element
+            is for its host key to encode the network element's
+            identity, such as if the host key were a certificate.
+            This option enables the host key to change over time, 
+            so long as it continues to encode the same identity,
+            but brings the next issue of how the management system 
+            can verify the network element's host key is authentic.</t>
+
+            <t>The security of SSH is anchored in the ability for the
+            SSH client to verify the SSH server's host key.  Typically
+            this is done by comparing the host key presented by the
+            SSH server with one that was previously configured on the 
+            SSH client, looking it up in a local database using the
+            identity of the SSH client as the lookup key.  Nothing 
+            changes regarding this requirement due to the direction
+            reversal of the underlying TCP connection.  To ensure
+            security, the management system MUST verify the network
+            element's SSH host key each time a SSH session is
+            established.</t>
+
+            <t>However, configuring distinct host keys on the 
+            management system doesn't scale well, which is an important
+            consideration to a network management system.  A more
+            scalable strategy for the management system is for the 
+            network element's manufacturer to sign the network-element's
+            host key with a common trusted key, such as a certificate
+            authority.  Then, when the network-element is deployed,
+            the management system only needs to trust a single certificate,
+            which vouches for the authenticity of the various 
+            network element host keys.</t>
+
+            <t>Since both the identification and verification issues
+            are addressed using certificates, this draft RECOMMENDS
+            network elements use a host key that can encode a unique
+            identifier (e.g., its serial number) and be signed by a 
+            common trust anchor (e.g., a certificate authority).  
+            Examples of suitable public host keys are the X.509v3 keys
+            defined in defined in <xref target="RFC6187"/> and the
+            PGP keys defined in <xref target="RFC4253"/>.</t>
+        </section>
+
+
+        <section title="Device Configuration">
+            <t>How to configure a device to initiate a NETCONF over SSH 
+            Call Home connection is outside the scope of this document,
+            as implementations can support this protocol using a proprietary
+            configuration data model.   That said, a YANG
+            <xref target="RFC6020"/> model to configure NETCONF over 
+            SSH Call Home is specified in 
+            <xref target="draft-ietf-netconf-server-model"/>.</t>
+        </section>
+
+        <section anchor="sec-con" title="Security Considerations">
+
+            <t>This RFC deviates from standard SSH protocol usage by
+            allowing the SSH server to initiate the TCP connection.
+            This conflicts with section 4 of the SSH Transport Layer
+            Protocol RFC <xref target="RFC4253"/>, which states
+            "The client initiates the connection".  However this
+            statement is made without rationalization and it's not
+            clear how it impacts the security of the protocol, so
+            this section analyzes the security offered by 
+            having the client initiate the connection.</t>
+           
+            <t>First, assuming the SSH server is not using a public
+            host key algorithm that certifies its identity, the
+            security of the protocol doesn't seem to be sensitive
+            to which peer initiates the connection.  That is, it is
+            still the case that reliable distribution of host keys
+            (or their fingerprints) should occur prior to first connection
+            and that verification for subsequent connections happens
+            by comparing the host keys in a locally cached database.
+            It does not seem to matter if the SSH server's host 
+            name is derived from user-input or extracted from the
+            TCP layer, potentially via a reverse-DNS lookup.  Once
+            the host name-to-key association is stored in a local
+            database, no man-in-the-middle attack is possible due
+            to the attacker being unable to guess the real SSH
+            server's private key (Section 9.3.4 (Man-in-the-middle) of 
+            <xref target="RFC4251"/>).</t>
+            
+            <t>That said, this RFC recommends implementations use
+            a public host key algorithm that certifies the SSH
+            server's identity.  The identity can be any unique 
+            identifier, such as a device's serial number or a
+            deployment-specific value.  If this recommendation is
+            followed, then no information from the TCP layer would
+            be needed to lookup the device in a local database and
+            therefore the directionality of the TCP layer is 
+            clearly inconsequential.</t>
+           
+            <t>The SSH protocol negotiates which algorithms it will
+            use during key exchange (Section 7.1 (Algorithm Negotiation)
+            in <xref target="RFC4253"/>).  The algorithm
+            selected is essentially the first compatible algorithm 
+            listed by the SSH client that is also listed by the SSH
+            server.  For a network management application, there 
+            may be a need to advertise a large number of algorithms
+            to be compatible with the various devices it manages.
+            The SSH client SHOULD order its list of public host key
+            algorithms such that all the certifiable public host key
+            algorithms are listed first.  Additionally,
+            when possible, SSH servers SHOULD only list certifiable
+            public host key algorithms.  Note that since the SSH server
+            would have to be configured to know which IP address it
+            is to connect to, it is expected that it will also be
+            configured to know which host key algorithm to use
+            for the particular application, and hence only needs
+            to list just that one public host key algorithm.</t>
+
+            <t>This RFC suggests implementations can use a device's
+            serial number as a form of identity.  A potential concern
+            with using a serial number is that the SSH protocol passes
+            the SSH server's host-key in the clear and many times
+            serial numbers encode revealing information about the
+            device, such as what kind of device it is and when it
+            was manufactured.  While there is little security in
+            trying to hide this information from an attacker, it
+            is understood that some deployments may want to keep 
+            this information private.  If this is a concern, 
+            deployments SHOULD use an alternate unique identifier,
+            if even just the hash of the device's serial number.</t>
+
+            <t>An attacker could DoS the application by having it
+            perform computationally expensive operations, before
+            deducing that the attacker doesn't posses a valid key.
+            This is no different than any secured service and all common 
+            precautions apply (e.g., blacklisting the source address
+            after a set number of unsuccessful login attempts).</t>
+        </section>
+
+        <section title="IANA Considerations">
+
+          <t>This document requests that IANA assigns a TCP port number
+          in the "Registered Port Numbers" range with the service name
+          "netconf-ssh-ch".  This port will be the default port for 
+          NETCONF over SSH Call Home protocol and will be used when the
+          NETCONF server is to initiate a connection to a NETCONF client
+          using SSH.  Below is the registration template following the
+          rules in <xref target="RFC6335"/>.</t>
+
+          <t>
+            <figure align="center">
+                <artwork><![CDATA[
+Service Name:           netconf-ssh-ch
+Transport Protocol(s):  TCP
+Assignee:               IESG <iesg@ietf.org>
+Contact:                IETF Chair <chair@ietf.org>
+Description:            NETCONF over SSH Call Home
+Reference:              RFC XXXX
+Port Number:            YYYY
+]]></artwork>
+            </figure>
+          </t>
+        </section>
+
+        <section title="Acknowledgements">
+            <t>The author would like to thank for following for
+            lively discussions on list and in the halls (ordered
+            by last name): Andy Bierman, Martin Bjorklund, Mehmet Ersue,
+            Wes Hardaker, Stephen Hanna, David Harrington, Jeffrey Hutzelman,
+            Radek Krejci, Alan Luchuk, Mouse, Russ Mundy, Tom Petch, 
+            Peter Saint-Andre, Joe Touch, Sean Turner, Bert Wijnen.</t>
+        </section>
+
+    </middle>
+    <back>
+
+        <references title="Normative References">
+            <reference anchor="RFC2119">
+                <front>
+                    <title>
+                       Key words for use in RFCs to Indicate Requirement Levels
+                    </title>
+                    <author initials="S.B." surname="Bradner"
+                                            fullname="Scott Bradner">
+                        <organization>Harvard University</organization>
+                    </author>
+                    <date month="March" year="1997" />
+                </front>
+                <seriesInfo name="BCP" value="14" />
+                <seriesInfo name="RFC" value="2119" />
+            </reference>
+            <reference anchor="RFC4250">
+                <front>
+                    <title>
+                        The Secure Shell (SSH) Protocol Assigned Numbers
+                    </title>
+                    <author initials="S.L." surname="Lehtinen"
+                                            fullname="Sami Lehtinen">
+                        <organization>
+                          SSH Communications Security Corp
+                        </organization>
+                    </author>
+                    <author initials="C.L." surname="Lonvick"
+                            fullname="Chris Lonvick">
+                        <organization>
+                          Cisco Systems, Inc.
+                        </organization>
+                    </author>
+                    <date month="December" year="2005" />
+                </front>
+                <seriesInfo name="RFC" value="4250" />
+            </reference>
+            <reference anchor="RFC4251">
+                <front>
+                    <title>
+                        The Secure Shell (SSH) Protocol Architecture
+                    </title>
+                    <author initials="T.Y." surname="Ylonen"
+                                            fullname="Tatu Ylonen">
+                        <organization>
+                          SSH Communications Security Corp
+                        </organization>
+                    </author>
+                    <author initials="C.L." surname="Lonvick"
+                            fullname="Chris Lonvick">
+                        <organization>
+                          Cisco Systems, Inc.
+                        </organization>
+                    </author>
+                    <date month="January" year="2006" />
+                </front>
+                <seriesInfo name="RFC" value="4251" />
+            </reference>
+            <reference anchor="RFC4252">
+                <front>
+                    <title>
+                        The Secure Shell (SSH) Authentication Protocol
+                    </title>
+                    <author initials="T.Y." surname="Ylonen"
+                                            fullname="Tatu Ylonen">
+                        <organization>
+                          SSH Communications Security Corp
+                        </organization>
+                    </author>
+                    <author initials="C.L." surname="Lonvick"
+                            fullname="Chris Lonvick">
+                        <organization>
+                          Cisco Systems, Inc.
+                        </organization>
+                    </author>
+                    <date month="January" year="2006" />
+                </front>
+                <seriesInfo name="RFC" value="4252" />
+            </reference>
+            <reference anchor="RFC4253">
+                <front>
+                    <title>
+                        The Secure Shell (SSH) Transport Layer Protocol
+                    </title>
+                    <author initials="T.Y." surname="Ylonen"
+                                            fullname="Tatu Ylonen">
+                        <organization>
+                          SSH Communications Security Corp
+                        </organization>
+                    </author>
+                    <author initials="C.L." surname="Lonvick"
+                            fullname="Chris Lonvick">
+                        <organization>
+                          Cisco Systems, Inc.
+                        </organization>
+                    </author>
+                    <date month="January" year="2006" />
+                </front>
+                <seriesInfo name="RFC" value="4253" />
+            </reference>
+            <reference anchor="RFC4254">
+                <front>
+                    <title>
+                        The Secure Shell (SSH) Connection Protocol
+                    </title>
+                    <author initials="T.Y." surname="Ylonen"
+                                            fullname="Tatu Ylonen">
+                        <organization>
+                          SSH Communications Security Corp
+                        </organization>
+                    </author>
+                    <author initials="C.L." surname="Lonvick"
+                            fullname="Chris Lonvick">
+                        <organization>
+                          Cisco Systems, Inc.
+                        </organization>
+                    </author>
+                    <date month="January" year="2006" />
+                </front>
+                <seriesInfo name="RFC" value="4254" />
+            </reference>
+            <reference anchor="RFC6020">
+                <front>
+                    <title>
+                        YANG - A Data Modeling Language for the 
+                        Network Configuration Protocol (NETCONF)
+                    </title>
+                    <author initials="M.B." surname="Bjorklund"
+                            fullname="Martin Bjorklund">
+                        <organization>Tail-f Systems</organization>
+                    </author>
+                    <date month="October" year="2010" />
+                </front>
+                <seriesInfo name="RFC" value="6020" />
+            </reference>
+<!--
+            <reference anchor="RFC6125">
+                <front>
+                    <title>
+                        Representation and Verification of Domain-Based
+                        Application Service Identity within Internet 
+                        Public Key Infrastructure Using X.509 (PKIX)
+                        Certificates in the Context of Transport Layer
+                        Security (TLS)
+                    </title>
+                    <author initials="PSA" surname="Saint-Andre"
+                            fullname="Peter Saint-Andre">
+                        <organization>Cisco</organization>
+                    </author>
+                    <author initials="J.H." surname="Hodges"
+                            fullname="Jeff Hodges">
+                        <organization>PayPal</organization>
+                    </author>
+                    <date month="March" year="2011" />
+                </front>
+                <seriesInfo name="RFC" value="6125" />
+            </reference>
+-->
+            <reference anchor="RFC6187">
+                <front>
+                    <title>
+                        X.509v3 Certificates for Secure Shell Authentication
+                    </title>
+                    <author initials="K.I." surname="Igoe"
+                            fullname="Kevin Igoe">
+                        <organization>National Security Agency</organization>
+                    </author>
+                    <author initials="D.S." surname="Stebila"
+                            fullname="Douglas Stebila">
+                        <organization>
+                            Queensland University of Technology
+                        </organization>
+                    </author>
+                    <date month="March" year="2011" />
+                </front>
+                <seriesInfo name="RFC" value="6187" />
+            </reference>
+            <reference anchor="RFC6241">
+                <front>
+                    <title>NETCONF Configuration Protocol</title>
+                    <author initials="R.E." surname="Enns"
+                            fullname="Rob Enns">
+                        <organization>Juniper Networks</organization>
+                    </author>
+                    <author initials="M.B." surname="Bjorklund"
+                            fullname="Martin Bjorklund">
+                        <organization>Tail-f Systems</organization>
+                    </author>
+                    <author initials="J.S." surname="Schoenwaelder"
+                            fullname="Juergen Schoenwaelder">
+                        <organization>Jacobs University</organization>
+                    </author>
+                    <author initials="A.B." surname="Bierman"
+                            fullname="Andy Bierman">
+                        <organization>Brocade</organization>
+                    </author>
+                    <date month="June" year="2011" />
+                </front>
+                <seriesInfo name="RFC" value="6241" />
+            </reference>
+            <reference anchor="RFC6242">
+                <front>
+                    <title>Using the NETCONF Protocol over Secure Shell (SSH)</title>
+                    <author initials="M.W." surname="Wasserman"
+                            fullname="Margaret Wasserman">
+                        <organization>Painless Security, LLC</organization>
+                    </author>
+                    <date month="June" year="2011" />
+                </front>
+                <seriesInfo name="RFC" value="6242"/>
+            </reference>
+            <reference anchor="RFC6335">
+                <front>
+                    <title>Internet Assigned Numbers Authority (IANA)
+                    Procedures for the Management of the Service Name
+                    and Transport Protocol Port Number Registry</title>
+                    <author initials="M.C." surname="Cotton"
+                            fullname="Michelle Cotton">
+                        <organization>Internet Corporation for Assigned Names and Numbers</organization>
+                    </author>
+                    <author initials="L.E." surname="Eggert"
+                            fullname="Lars Eggert">
+                        <organization>Nokia Research Center</organization>
+                    </author>
+                    <author initials="J.T." surname="Touch"
+                            fullname="Joe Touch">
+                        <organization>USC/ISI</organization>
+                    </author>
+                    <author initials="M.W." surname="Westerlund"
+                            fullname="Magnus Westerlund">
+                        <organization>Ericsson</organization>
+                    </author>
+                    <author initials="S.C." surname="Cheshire"
+                            fullname="Stuart Cheshire">
+                        <organization>Apple Inc.</organization>
+                    </author>
+                    <date month="August" year="2011" />
+                </front>
+                <seriesInfo name="RFC" value="6335" />
+            </reference>
+        </references>
+        <references title="Informative References">
+            <reference anchor="draft-ietf-netconf-server-model">
+                <front>
+                    <title>A YANG Data Model for NETCONF Server Configuration</title>
+                    <author initials="K.W." surname="Watsen"
+                            fullname="Kent Watsen">
+                        <organization>Juniper Networks</organization>
+                    </author>
+                    <author initials="J.S." surname="Schoenwaelder"
+                            fullname="Juergen Schoenwaelder">
+                        <organization>Jacobs University</organization>
+                    </author>
+                    <date month="June" year="2011" />
+                </front>
+                <seriesInfo name="RFC" value="6242"/>
+            </reference>
+        </references>
+
+        <section title="Change Log">
+          <section title="05 to 06">
+            <t>
+            <list>
+              <t>Changed title to  &quot;NETCONF Call Home using SSH&quot;</t>
+              <t>Revised the Abstract and Introduction to better
+              explain what the document regards.  </t>
+              <t>Changed &quot;MUST&quot; to &quot;SHOULD&quot; in the
+              Applicability Statement.</t>
+              <t>Added a &quot;Draft Naming&quot; section explaining why,
+              despite its name, reversing SSH is nowhere in the text</t>
+              <t>Added PGP keys as another kind of SSH host key
+              encoding identity and signed by a trust anchor.</t>
+              <t>Revised the Device Considerations section to more
+              clearly explain why a device configuration data model
+              is out of scope, and hence an Informative reference.</t>
+              <t>Clarified Security Considerations section on use
+              of serial numbers.</t>
+             </list>
+            </t>
+          </section>
+          <section title="04 to 05">
+            <t>
+            <list>
+              <t>Changed "Reverse SSH" to "Call Home"</t>
+              <t>Added references to Applicability Statement</t>
+             </list>
+            </t>
+          </section>
+          <section title="03 to 04">
+            <t>
+            <list>
+              <t>Changed title to "Reverse SSH for NETCONF Call Home" (changed again in -05)</t>
+              <t>Removed statement on how other SSH channels might be used for other protocols</t>
+              <t>Improved language on how the management system, as the SSH client, MUST authenticate the SSH server</t>
+              <t>Clarified that identifying the network element using source IP address is NOT RECOMMENDED</t>
+              <t>Clarified that identifying the NE using simple certificate comparison is NOT RECOMMENDED</t>
+              <t>Device Configuration section now more clearly states that the YANG model is out of scope</t>
+              <t>Change requested port name to "netconf-ssh-ch"</t>
+              <t>General edits for grammer, capitalization, and spellings</t>
+            </list>
+            </t>
+          </section>
+          <section title="02 to 03">
+            <t>
+            <list>
+              <t>Updated Device Configuration section to reference
+              <xref target="draft-ietf-netconf-server-model"/></t>
+            </list>
+            </t>
+          </section>
+          <section title="01 to 02">
+            <t>
+            <list>
+              <t>Added Applicability Statement</t>
+              <t>Removed references to ZeroConf / ZeroTouch</t>
+              <t>Clarified the protocol section</t>
+              <t>Added a section for identification and verification</t>
+            </list>
+            </t>
+          </section>
+          <section title="00 to 01">
+            <t>
+            <list>
+              <t>Removed the hmac-* family of algorithms</t>
+            </list>
+            </t>
+          </section>
+        </section>
+    </back>
+</rfc>
+
