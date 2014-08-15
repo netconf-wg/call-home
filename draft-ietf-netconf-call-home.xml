@@ -227,10 +227,10 @@
           or a certificate, for the SSH and TLS protocols respectively.
           Without examining the contents of the host-key or certificate,
           it is possible to form an identity for the network element 
-          using it, since each network element has a statistically unique public
-          key.  For instance, a fingerprint of the host-key or certificate
-          could be used for a network element's identity. This strategy
-          also provides a mechanism to verify the network element, in that
+          using it (e.g., a fingerprint), since each network element
+          is assumed to have a statistically unique public key, even
+          in virtualized environments.  This strategy also provides
+          a mechanism to verify the network element, in that
           a secure connection can only be established with the network 
           element having the matching private key.  This strategy is 
           commonly implemented by SSH clients, but could be used equally 
