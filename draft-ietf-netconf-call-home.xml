@@ -160,7 +160,7 @@
               stream is the initial message defined for these protocols,
               per <xref target="RFC4253"/> or <xref target="RFC5246"/>.</t>
               <t>The NETCONF protocol proceeds normally for SSH and TLS,
-              as defined in <xref target="RFC4253"/> and 
+              as defined in <xref target="RFC6242"/> and
               <xref target="RFC5539"/> respectively.</t>
             </list>
           </t>
@@ -175,9 +175,9 @@
               starts either the SSH-server or TLS-server protocol.  That
               is, the next message sent on the TCP stream is the initial 
               message defined for these protocols, per 
-              xref target="RFC4253"/> or <xref target="RFC5246"/>.</t>
+              <xref target="RFC4253"/> or <xref target="RFC5246"/>.</t>
               <t>The NETCONF protocol proceeds normally for SSH and TLS,
-              as defined in <xref target="RFC4253"/> and 
+              as defined in <xref target="RFC6242"/> and
               <xref target="RFC5539"/> respectively.</t>
             </list>
           </t>
@@ -196,7 +196,7 @@
           <t>However, when receiving a NETCONF Call Home connection,
           the management system does not have an expectation for the
           connection to be from a specific network element, and thus
-          must derived the network element's identity using 
+          must derive the network element's identity using
           information provided by the network and the network element
           itself.  This section describes 
           strategies a management system can use to identify a
