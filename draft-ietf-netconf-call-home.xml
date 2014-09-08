@@ -215,7 +215,7 @@
           <t>The first information a management system learns from a
           NETCONF Call Home connection is the IP address of the remote peer,
           as provided as the source address of the TCP connection.
-          This IP address could be used as an identifer,
+          This IP address could be used as an identifier,
           but it can only work in networks that use known static addresses,
           in which case having the management system initiate the NETCONF
           connection to the network element would have worked just as well.
