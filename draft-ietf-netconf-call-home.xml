@@ -8,6 +8,7 @@
 <!ENTITY rfc5539 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5539.xml">
 <!ENTITY rfc6020 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6020.xml">
 <!ENTITY rfc6187 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6187.xml">
+<!ENTITY rfc6241 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6241.xml">
 <!ENTITY rfc6242 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6242.xml">
 <!ENTITY rfc6335 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6335.xml">
 ]>
@@ -55,13 +56,35 @@
     <middle>
 
 
+        <section title="Introduction" anchor="introduction">
+          <t>This document presents NETCONF Call Home, which enables a
+          NETCONF server to initiate a secure connection to the NETCONF
+          client.  NETCONF Call Home supports both the SSH and TLS 
+          transports, and does so in a way that preserves the SSH and 
+          TLS roles when compared to standard NETCONF over SSH or TLS 
+          connections.</t>
+          <t>The same technique is used to enabled call home for both
+          the SSH and TLS transports.  The technique is to have the
+          NETCONF server initiate a TCP connection to the intended NETCONF client.
+          The NETCONF client then uses the established TCP connection to
+          initiate either the SSH or TLS protocols.  In this way, the
+          NETCONF server is always the SSH or TLS server, regardless
+          if call home is used or not.</t>
+          <t>Enabling the NETCONF server to maintain the role of SSH
+          or TLS server is both necessary and desirable.  It is 
+          necessary for the SSH protocol, as SSH channels and subsystems
+          can only be opened on the SSH server.  It is desirable for
+          both the SSH and TLS protocols as it conveniently leverages
+          infrastructure that may be deployed for host-key or certificate
+          verification and user authentication.</t>
+ 
           <section title="Motivation" anchor="motivation">
             <t>Call home is generally useful for both the initial deployment
-            and on-going  management of networking elements.  Here are some
+            and on-going management of networking elements.  Here are some
             scenarios enabled by call home:
               <list style="symbols">
                 <t>The network element may proactively call home after
-                being powered on for the first time to register
+                being powered on for the first time in order to register
                 itself with its management system.</t>
                 <t>The network element may access the network in a way that
                 dynamically assigns it an IP address and it doesn't
@@ -98,7 +121,7 @@
           <section title="Applicability Statement">
             <t>The techniques described in this document are
             suitable for network management scenarios such
-            as the ones described in section 3. However,
+            as the ones described in <xref target="motivation"/>. However,
             these techniques SHOULD only be used for a NETCONF
             server to initiate a connection to a NETCONF
             client, as described in this document.</t>
@@ -106,9 +129,9 @@
             <t>The reason for this restriction is that different
             protocols have different security assumptions.
             The NETCONF transport specifications require
-            NETCONF clients and servers to verify the
-            identity of the other party before starting the
-            NETCONF protocol (section 6 of <xref target="RFC6242"/>).</t>
+            NETCONF clients and servers to verify the identity
+            of the other party before starting the NETCONF 
+            protocol (section 2.2 of <xref target="RFC6241"/>.</t>
 
             <t>This contrasts with the base SSH and TLS protocols, which
             do not require programmatic verification of the 
@@ -122,158 +145,158 @@
 
           <section title="Update to RFC 4253">
             <t>This document updates the SSH Transport Layer Protocol
-            <xref target="RFC4253"/> only by removing the restriction
-            in Section 4 (Connection Setup) of <xref target="RFC4253"/>
-            that the SSH client initiates the connection.  Security 
-            implications related to this change are discussed
-            in Security Considerations (<xref target="sec-con"/>).</t>
+            <xref target="RFC4253"/> only by removing the "The client
+            initiates the connection" statement made in Section 4 (Connection
+            Setup).  This document assumes that the reference to 
+            "connection" refers to the underlying transport connection
+            (e.g., TCP).  Security implications related to this change
+            are discussed in Security Considerations 
+            (<xref target="sec-con"/>).</t>
           </section>
-
-        <section title="Overview">
-          <t>The same technique is used to enabled call home for both
-          the SSH and TLS transports.  The technique is to have the
-          network element initiate a TCP connection to its remote peer.
-          The remote peer then uses the established TCP connection to
-          initiate either the SSH or TLS protocols.  In this way, the
-          network element is always the SSH or TLS server, regardless
-          if call home is used or not.</t>
-          <t>Enabling the network element to maintain the role of SSH
-          or TLS server is both necessary and desirable.  It is 
-          necessary for the SSH protocol, as SSH channels and subsystems
-          can only be opened on the SSH server.  It is desirable for
-          both the SSH and TLS protocols as it conveniently leverages
-          infrastructure that may be deployed for host-key or certificate
-          verification and user authentication.</t>
         </section>
 
-        <section title="Operation">
-          <t>The NETCONF server's perspective (e.g., the network element)
+        <section title="The NETCONF Server">
+          <section title="Protocol Operation">
+          <t>
             <list style="symbols">
               <t>The NETCONF server initiates a TCP connection to
               the NETCONF client on one of the IANA-assigned ports
-              for NETCONF Call Home (YYYY or ZZZZ).</t>
+              for NETCONF Call Home (YYYY for netconf-ch-ssh and 
+              ZZZZ for netconf-ch-tls).</t>
               <t>The TCP connection is accepted and a TCP session is
               established.</t>
-              <t>Using this TCP connection, the NETCONF server
-              immediately starts either the SSH-server or TLS-server
-              protocol.  That is, the next message sent on the TCP 
-              stream is the initial message defined for these protocols,
-              per <xref target="RFC4253"/> or <xref target="RFC5246"/>.</t>
+              <t>Using this TCP session, the NETCONF server immediately
+              starts either the SSH-server or the TLS-server protocol, 
+              depending on which port is connected.  The NETCONF 
+              server MUST start the SSH-server protocol when port
+              YYYY is connected and the TLS-server protocol when 
+              port ZZZZ is connected.  The SSH-server and TLS-server
+              protocols are described by <xref target="RFC4253"/> and 
+              <xref target="RFC5246"/> respectively.</t>
               <t>The NETCONF protocol proceeds normally for SSH and TLS,
               as defined in <xref target="RFC6242"/> and
               <xref target="RFC5539"/> respectively.</t>
             </list>
           </t>
-          <t>The NETCONF client's perspective (e.g., the management system)
+          </section>
+          <section title="Configuration Data Model">
+              <t>How to configure a NETCONF server to initiate a NETCONF 
+              Call Home connection is outside the scope of this document,
+              as implementations can support this protocol using proprietary
+              configuration data models.   That said, a YANG
+              <xref target="RFC6020"/> model for configuring NETCONF Call Home 
+              is provided in <xref target="draft-ietf-netconf-server-model"/>.</t>
+          </section>
+        </section>
+
+        <section title="The NETCONF Client">
+          <section title="Protocol Operation">
+          <t>
             <list style="symbols">
               <t>The NETCONF client listens for TCP connections
               on one or both of the IANA-assigned ports for NETCONF 
-              Call Home port (YYYY and/or ZZZZ).</t>
+              Call Home (YYYY for netconf-ch-ssh and ZZZZ for netconf-ch-tls).</t>
               <t>The NETCONF client accepts an incoming TCP
               connection and a TCP session is established.</t>
-              <t>Using this TCP connection, the NETCONF client immediately
-              starts either the SSH-server or TLS-server protocol.  That
-              is, the next message sent on the TCP stream is the initial 
-              message defined for these protocols, per 
-              <xref target="RFC4253"/> or <xref target="RFC5246"/>.</t>
+              <t>Using this TCP session, the NETCONF client immediately
+              starts either the SSH-client or the TLS-client protocol, 
+              depending on which port is connected.  The NETCONF 
+              client MUST start the SSH-client protocol when port
+              YYYY is connected and the TLS-client protocol when 
+              port ZZZZ is connected.  The SSH-client and TLS-client
+              protocols are described by <xref target="RFC4253"/> and 
+              <xref target="RFC5246"/> respectively.</t>
               <t>The NETCONF protocol proceeds normally for SSH and TLS,
-              as defined in <xref target="RFC6242"/> and
+              as is defined in <xref target="RFC6242"/> and
               <xref target="RFC5539"/> respectively.</t>
             </list>
           </t>
-        </section>
+          </section>
 
-        <section title="NETCONF Server Identification and Verification" anchor="svr-id-and-ver">
-
-          <t>Under normal circumstances, a management system initiates
-          the NETCONF connection to the network element.  This action
-          provides essential input to verify the network element's 
-          identity.  For instance, when using TLS, the input can be
-          compared to the domain names and IP addresses encoded in
-          X.509 certificates.  Similarly, when using SSH, the input
-          can be compared to information persisted previously.</t>
-
-          <t>However, when receiving a NETCONF Call Home connection,
-          the management system does not have an expectation for the
-          connection to be from a specific network element, and thus
-          must derive the network element's identity using
-          information provided by the network and the network element
-          itself.  This section describes 
-          strategies a management system can use to identify a
-          network element.</t>
-
-          <t>In addition to identifying a network element, a management
-          system must also be able to verify the network element's
-          credentials.
-          Verifying a network element's credentials is of course
-          necessary under normal circumstances, but due to call home
-          being commonly used for newly deployed network elements, how to verify
-          its credentials the very first time becomes a critical concern.
-          Therefore, this section also describes strategies a management
-          system can use to verify a network element's credentials.</t>
-
-          <t>The first information a management system learns from a
-          NETCONF Call Home connection is the IP address of the remote peer,
-          as provided as the source address of the TCP connection.
-          This IP address could be used as an identifier,
-          but it can only work in networks that use known static addresses,
-          in which case having the management system initiate the NETCONF
-          connection to the network element would have worked just as well.
-          Due to its limited use, it is not recommended to identify a network
-          element based on its source IP address.</t>
-
-          <t>The next information a management system learns is
-          provided by the network element in the form of a host-key
-          or a certificate, for the SSH and TLS protocols respectively.
-          Without examining the contents of the host-key or certificate,
-          it is possible to form an identity for the network element 
-          using it (e.g., a fingerprint), since each network element
-          is assumed to have a statistically unique public key, even
-          in virtualized environments.  This strategy also provides
-          a mechanism to verify the network element, in that
-          a secure connection can only be established with the network 
-          element having the matching private key.  This strategy is 
-          commonly implemented by SSH clients, but could be used equally 
-          well by TLS-based clients, such as may be required when the 
-          network elements have self-signed certificates.  This strategy
-          is viable and useful when the network elements call home using
-          either SSH with standard RSA/DSA host-keys, or using TLS with
-          self-signed certificates.</t> 
-
-          <t>Yet another option for identifying a network element
-          is for its host key or certificate to encode its identity
-          directly (e.g., within the "Subject" field).  However, in
-          order to trust the content encoded within a host-key or 
-          certificate, it must be signed by a trust anchor known to 
-          the management application.  This strategy enables a
-          management application to transparently authenticate 
-          network elements, thus eliminating the need for manual 
-          authentication, as required by the previously discussed 
-          strategy.  Elimination of manual steps is needed to achieve
-          scalable solutions, however one can claim that this merely
-          pushes equivalent work to provisioning the network elements
-          with signed credentials.  This assessment is accurate in 
-          general, but not in the case where the manufacturer itself 
-          provisions the credentials, such as is described by 
-          <xref target="Std-802.1AR-2009"/>.  When network elements
-          are pre-provisioned this way, management applications can
-          transparently authenticate network elements using just the 
-          manufacturer's trust anchor and a list of expected network 
-          element identifiers, which could be provided along with 
-          shipping information.</t>
-	  
-	  <t>TLS uses X.509 certificates by default.  To use X.509
-	  certificates with SSH, implementations should reference 
-	  <xref target="RFC6187"/>.</t>
-        </section>
-
-        <section title="Configuration Data Model">
-            <t>How to configure a network element to initiate a NETCONF 
-            Call Home connection is outside the scope of this document,
-            as implementations can support this protocol using proprietary
-            configuration data models.   That said, a YANG
-            <xref target="RFC6020"/> model configuring NETCONF Call Home 
-            is provided in <xref target="draft-ietf-netconf-server-model"/>.</t>
+          <section title="Server Identification and Verification" anchor="svr-id-and-ver">
+  
+            <t>Under normal circumstances, a NETCONF client initiates
+            the NETCONF connection to the NETCONF server.  This action
+            provides essential input to verify the NETCONF server's 
+            identity.  For instance, when using TLS, the input can be
+            compared to the domain names and IP addresses encoded in
+            X.509 certificates.  Similarly, when using SSH, the input
+            can be compared to information persisted previously.</t>
+  
+            <t>However, when receiving a NETCONF Call Home connection,
+            the NETCONF client does not have any context
+            leading it to know the connection is from a particular
+            NETCONF server.   Thus the NETCONF client must derive the
+             NETCONF server's identity using information provided by
+            the network and the NETCONF server itself.  This section
+            describes strategies a NETCONF client can use to identify
+            a NETCONF server.</t>
+  
+            <t>In addition to identifying a NETCONF server, a NETCONF
+            client must also be able to verify the NETCONF server's
+            credentials.  Verifying a NETCONF server's credentials is
+            necessary under normal circumstances but, due to call home
+            being commonly used for newly deployed NETCONF servers, how to verify
+            its credentials the very first time becomes a prominent concern.
+            Therefore, this section also describes strategies a NETCONF
+            client can use to verify a NETCONF server's credentials.</t>
+  
+            <t>The first information a NETCONF client learns from a
+            NETCONF Call Home connection is the IP address of the NETCONF server,
+            as provided by the source address of the TCP connection.
+            This IP address could be used as an identifier directly, but
+            doing so would only work in networks that use known static 
+            addresses, in which case a standard NETCONF connection would
+            have worked just as well.  Due to this limited use, it is not
+            recommended to identify a NETCONF server based on its source
+            IP address.</t>
+  
+            <t>The next information a NETCONF client learns is
+            provided by the NETCONF server in the form of a host-key
+            or a certificate, for the SSH and TLS protocols respectively.
+            Without examining the contents of the host-key or certificate,
+            it is possible to form an identity for the NETCONF server 
+            using it (e.g., a fingerprint), since each NETCONF server
+            is assumed to have a statistically unique public key, even
+            in virtualized environments.  This strategy also provides
+            a mechanism to verify the NETCONF server, in that
+            a secure connection can only be established with the NETCONF 
+            server having the matching private key.  This strategy is 
+            commonly implemented by SSH clients, and could be used equally 
+            well by TLS-based clients, such as may be required when the 
+            NETCONF servers have self-signed certificates.  This strategy
+            is viable and useful when the NETCONF servers call home using
+            either SSH with standard RSA/DSA host-keys, or using TLS with
+            self-signed certificates.</t> 
+  
+            <t>Yet another option for identifying a NETCONF server
+            is for its host key or certificate to encode its identity
+            directly (e.g., within the "Subject" field).  However, in
+            order to trust the content encoded within a host-key or 
+            certificate, it must be signed by a certificate authority
+            trusted by the NETCONF client.  This strategy's use of PKI
+            enables a NETCONF client to transparently authenticate 
+            NETCONF servers, thus eliminating the need for manual 
+            authentication, as required by the previously discussed 
+            strategies.  Elimination of manual steps is needed to achieve
+            scalable solutions, however one can claim that this merely
+            pushes equivalent work to provisioning the NETCONF servers
+            with signed credentials.  This assessment is accurate in 
+            general, but not in the case where the manufacturer itself 
+            provisions the credentials, such as is described by 
+            <xref target="Std-802.1AR-2009"/>.  When NETCONF servers
+            are pre-provisioned this way, NETCONF clients can
+            transparently authenticate NETCONF servers using just the 
+            manufacturer's trust anchor and a list of expected NETCONF 
+            server identifiers, which could be provided along with 
+            shipping information.  This strategy is recommended for
+            all deployment scenarios.</t>
+  	  
+  	    <t>In discussing the use of certificates, it is worth noting
+            that TLS uses X.509 certificates by default.  However, to use
+            X.509 certificates with SSH, both the NETCONF client and server
+            must support <xref target="RFC6187"/>.</t>
+          </section>
         </section>
 
         <section anchor="sec-con" title="Security Considerations">
@@ -298,7 +321,7 @@
             for strategies for this are described in 
             <xref target="svr-id-and-ver"/>.</t>
 
-            <t>An attacker could DoS the management application by 
+            <t>An attacker could DoS the NETCONF client by 
             having it perform computationally expensive operations, before
             deducing that the attacker doesn't posses a valid key.
             This is no different than any secured service and all common 
@@ -358,6 +381,7 @@ Port Number:            ZZZZ
           &rfc5539;
           &rfc6020;
           &rfc6187;
+          &rfc6241;
           &rfc6242;
           &rfc6335;
         </references>
@@ -393,6 +417,21 @@ Port Number:            ZZZZ
               </front>
           </reference>
       </references>
+
+      <section title="Change Log">
+        <section title="00 to 01">
+          <t>
+            <list style="symbols">
+              <t>The term "TCP connection" is now used throughout.</t>
+              <t>The terms "network element" and "management system" are now only used in the Motivation section.</t>
+              <t>Restructured doc a little to create an Introduction section.</t>
+              <t>Fixed reference in Applicability Statement so it would work
+              equally well for SSH and TLS.</t>
+              <t>Fixed reported odd wording and three references.</t>
+            </list>
+          </t>
+        </section>
+      </section>
 
     </back>
 
