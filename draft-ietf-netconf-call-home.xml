@@ -32,7 +32,7 @@
      docName="draft-ietf-netconf-call-home-latest"
      updates="4253">
     <front>
-        <title>NETCONF Call Home</title>
+        <title>NETCONF Call Home and RESTCONF Call Home</title>
         <author initials="K.W." surname="Watsen" fullname="Kent Watsen">
             <organization>Juniper Networks</organization>
             <address>
@@ -44,12 +44,9 @@
         <workgroup>NETCONF Working Group</workgroup>
         <keyword>call-home</keyword>
         <abstract>
-            <t>This document presents NETCONF Call Home, which enables a
-            NETCONF server to initiate a secure connection to the NETCONF
-            client.  NETCONF Call Home supports both the SSH and TLS 
-            transports, and does so in a way that preserves the SSH and 
-            TLS roles when compared to standard NETCONF over SSH or TLS 
-            connections.</t>
+            <t>This document presents NETCONF Call Home and RESTCONF Call Home,
+            which respectively enable a NETCONF/RESTCONF server to initiate a
+            secure connection to a NETCONF/RESTCONF client.</t>
         </abstract>
     </front>
 
@@ -57,25 +54,23 @@
 
 
         <section title="Introduction" anchor="introduction">
-          <t>This document presents NETCONF Call Home, which enables a
-          NETCONF server to initiate a secure connection to the NETCONF
-          client.  NETCONF Call Home supports both the SSH and TLS 
-          transports, and does so in a way that preserves the SSH and 
-          TLS roles when compared to standard NETCONF over SSH or TLS 
-          connections.</t>
-          <t>The same technique is used to enabled call home for both
-          the SSH and TLS transports.  The technique is to have the
-          NETCONF server initiate a TCP connection to the intended NETCONF client.
-          The NETCONF client then uses the established TCP connection to
-          initiate either the SSH or TLS protocols.  In this way, the
-          NETCONF server is always the SSH or TLS server, regardless
-          if call home is used or not.</t>
-          <t>Enabling the NETCONF server to maintain the role of SSH
-          or TLS server is both necessary and desirable.  It is 
-          necessary for the SSH protocol, as SSH channels and subsystems
-          can only be opened on the SSH server.  It is desirable for
-          both the SSH and TLS protocols as it conveniently leverages
-          infrastructure that may be deployed for host-key or certificate
+          <t>This document presents NETCONF Call Home and RESTCONF Call Home,
+          which respectively enable a NETCONF/RESTCONF server to initiate a
+          secure connection to a NETCONF/RESTCONF client.  The NETCONF protocol
+          is described in <xref target="RFC6241"/> and the RESTCONF is described
+          in <xref target="draft-ietf-netconf-restconf"/>.</t>
+          <t>Both NETCONF Call Home and RESTCONF Call Home preserve the SSH 
+          <xref target="RFC4253"/> and TLS <xref target="RFC5246"/> transport
+          roles, as when compared to standard NETCONF and
+          RESTCONF connections.  Specifically, regardless if call home is
+          used or not, the NETCONF server is always the SSH or TLS server,
+          and the RESTCONF server is always the TLS server.</t>
+          <t>Ensuring consistency in the SSH and TLS roles is both necessary
+          and desirable.  Ensuring consistency is necessary, for the SSH protocol, as SSH 
+          channels and subsystems can only be opened on the SSH server, as
+          is needed to support NETCONF over SSH <xref target="RFC6242"/>.
+          Ensuring consistency is desirable, for both the SSH and TLS protocols, as it 
+          conveniently leverages infrastructure that may be deployed for host-key or certificate
           verification and user authentication.</t>
  
           <section title="Motivation" anchor="motivation">
@@ -100,13 +95,13 @@
                 for all internal network IP addresses, thus complicating
                 the ability for a management system to connect to it.</t>
                 <t>The operator may prefer to have network elements initiate
-                management connections believing it is easier to secure one
+                management connections, believing it is easier to secure one
                 open-port in the data center than to have an open port on
                 each network element in the network.</t>
               </list>
             </t>
-            <t>Having call home for NETCONF is particularly useful as 
-            NETCONF is the recommended protocol for configuration
+            <t>Having call home for the NETCONF protocol, and the RESTCONF protocol by extension, is
+            particularly useful as NETCONF is the recommended protocol for configuration
             <xref target="iesg-statement"/>, which is needed for 
             provisioning workflows.</t>
           </section>
@@ -122,25 +117,24 @@
             <t>The techniques described in this document are
             suitable for network management scenarios such
             as the ones described in <xref target="motivation"/>. However,
-            these techniques SHOULD only be used for a NETCONF
-            server to initiate a connection to a NETCONF
-            client, as described in this document.</t>
+            these techniques SHOULD only be used for NETCONF Call Home
+            and RESTCONF Call Home, as described in this document.</t>
 
             <t>The reason for this restriction is that different
-            protocols have different security assumptions.
-            The NETCONF transport specifications require
-            NETCONF clients and servers to verify the identity
-            of the other party before starting the NETCONF 
-            protocol (section 2.2 of <xref target="RFC6241"/>.</t>
+            protocols have different security assumptions.  The NETCONF 
+            and RESTCONF protocols require clients and servers to 
+            verify the identity of the other party before starting the
+            NETCONF/RESTCONF protocol (section 2.2 of <xref target="RFC6241"/> and
+            section FIXME of <xref target="draft-ietf-netconf-restconf"/>).</t>
 
             <t>This contrasts with the base SSH and TLS protocols, which
-            do not require programmatic verification of the 
-            other party (e.g., section 9.3.4 of <xref target="RFC4251"/>
-            and section 4 of <xref target="RFC4252"/>).  In such
-            circumstances, allowing the SSH/TLS server to contact the
-            SSH/TLS client would open new vulnerabilities. Any use of
-            call home with SSH/TLS for purposes other than NETCONF
-            will need a thorough, contextual security analysis.</t>
+            do not require programmatic verification of the other party
+            (section 9.3.4 of <xref target="RFC4251"/>, section 4 of 
+            <xref target="RFC4252"/>, and section 7.3 of <xref target="RFC5246"/>).
+            In such circumstances, allowing the SSH/TLS server to contact the
+            SSH/TLS client would open new vulnerabilities. Any use of call home
+            with SSH/TLS for purposes other than NETCONF or RESTCONF will need 
+          a thorough, contextual security analysis.</t>
           </section>
 
           <section title="Update to RFC 4253">
@@ -149,145 +143,150 @@
             initiates the connection" statement made in Section 4 (Connection
             Setup).  This document assumes that the reference to 
             "connection" refers to the underlying transport connection
-            (e.g., TCP).  Security implications related to this change
+            (e.g., TCP), which the server initiates in a call home 
+            connection.  Security implications related to this change
             are discussed in Security Considerations 
             (<xref target="sec-con"/>).</t>
           </section>
         </section>
 
-        <section title="The NETCONF Server">
+        <section title="The NETCONF Server or RESTCONF Server">
           <section title="Protocol Operation">
           <t>
             <list style="symbols">
-              <t>The NETCONF server initiates a TCP connection to
-              the NETCONF client on one of the IANA-assigned ports
-              for NETCONF Call Home (YYYY for netconf-ch-ssh and 
-              ZZZZ for netconf-ch-tls).</t>
+              <t>The NETCONF/RESTCONF server initiates a TCP connection to
+              the NETCONF/RESTCONF client on one of the IANA-assigned ports
+              for call home (PORT-X for netconf-ch-ssh,  PORT-Y for 
+              netconf-ch-tls, or PORT-Z for restconf-ch-tls).</t>
               <t>The TCP connection is accepted and a TCP session is
               established.</t>
-              <t>Using this TCP session, the NETCONF server immediately
+              <t>Using this TCP session, the NETCONF/RESTCONF server immediately
               starts either the SSH-server or the TLS-server protocol, 
-              depending on which port is connected.  The NETCONF 
-              server MUST start the SSH-server protocol when port
-              YYYY is connected and the TLS-server protocol when 
-              port ZZZZ is connected.  The SSH-server and TLS-server
-              protocols are described by <xref target="RFC4253"/> and 
-              <xref target="RFC5246"/> respectively.</t>
-              <t>The NETCONF protocol proceeds normally for SSH and TLS,
-              as defined in <xref target="RFC6242"/> and
-              <xref target="RFC5539"/> respectively.</t>
+              depending on which port is connected.  The server MUST start 
+              the SSH-server protocol when port PORT-X is connected or the 
+              TLS-server protocol when either port PORT-Y or PORT-Z is 
+              connected.  The SSH-server and TLS-server protocols are described
+              by <xref target="RFC4253"/> and <xref target="RFC5246"/> respectively.</t>
+              <t>When port PORT-X or PORT-Y is connected, the NETCONF protocol 
+              proceeds normally for SSH and TLS, as defined in <xref target="RFC6242"/>
+              and <xref target="RFC5539"/> respectively.  When port PORT-Z is 
+              connected, the RESTCONF protocol proceeds normally for TLS, as
+              defined in <xref target="draft-ietf-netconf-restconf"/>.</t>
             </list>
           </t>
           </section>
           <section title="Configuration Data Model">
-              <t>How to configure a NETCONF server to initiate a NETCONF 
-              Call Home connection is outside the scope of this document,
+              <t>How to configure a NETCONF or RESTCONF server to initiate a 
+              call home connection is outside the scope of this document,
               as implementations can support this protocol using proprietary
               configuration data models.   That said, a YANG
-              <xref target="RFC6020"/> model for configuring NETCONF Call Home 
-              is provided in <xref target="draft-ietf-netconf-server-model"/>.</t>
+              <xref target="RFC6020"/> model for configuring both NETCONF Call Home
+              and RESTCONF Call Home is provided in
+              <xref target="draft-ietf-netconf-server-model"/>.</t>
           </section>
         </section>
 
-        <section title="The NETCONF Client">
+        <section title="The NETCONF Client or RESTCONF Client">
           <section title="Protocol Operation">
           <t>
             <list style="symbols">
-              <t>The NETCONF client listens for TCP connections
-              on one or both of the IANA-assigned ports for NETCONF 
-              Call Home (YYYY for netconf-ch-ssh and ZZZZ for netconf-ch-tls).</t>
-              <t>The NETCONF client accepts an incoming TCP
+              <t>The NETCONF/RESTCONF client listens for TCP connections
+              on one or all of the IANA-assigned ports for NETCONF 
+              Call Home (PORT-X for netconf-ch-ssh and PORT-Y for netconf-ch-tls)
+              or RESTCONF Call Home (PORT-Z for restconf-ch-tls).</t>
+              <t>The NETCONF/RESTCONF client accepts an incoming TCP
               connection and a TCP session is established.</t>
-              <t>Using this TCP session, the NETCONF client immediately
+              <t>Using this TCP session, the NETCONF/RESTCONF client immediately
               starts either the SSH-client or the TLS-client protocol, 
-              depending on which port is connected.  The NETCONF 
-              client MUST start the SSH-client protocol when port
-              YYYY is connected and the TLS-client protocol when 
-              port ZZZZ is connected.  The SSH-client and TLS-client
-              protocols are described by <xref target="RFC4253"/> and 
-              <xref target="RFC5246"/> respectively.</t>
-              <t>The NETCONF protocol proceeds normally for SSH and TLS,
-              as is defined in <xref target="RFC6242"/> and
-              <xref target="RFC5539"/> respectively.</t>
+              depending on which port is connected.  The  client MUST start 
+              the SSH-client protocol when port PORT-X is connected and the
+              TLS-client protocol when port PORT-Y or PORT-Z is connected.
+              The SSH-client and TLS-client protocols are described by
+              <xref target="RFC4253"/> and <xref target="RFC5246"/> respectively.</t>
+              <t>When port PORT-X or PORT-Y is connected, the NETCONF protocol 
+              proceeds normally for SSH and TLS, as defined in <xref target="RFC6242"/>
+              and <xref target="RFC5539"/> respectively.  When port PORT-Z is 
+              connected, the RESTCONF protocol proceeds normally for TLS, as
+              defined in <xref target="draft-ietf-netconf-restconf"/>.</t>
             </list>
           </t>
           </section>
 
           <section title="Server Identification and Verification" anchor="svr-id-and-ver">
   
-            <t>Under normal circumstances, a NETCONF client initiates
-            the NETCONF connection to the NETCONF server.  This action
-            provides essential input to verify the NETCONF server's 
+            <t>Under normal circumstances, a NETCONF/RESTCONF client initiates
+            the connection to the NETCONF/RESTCONF server.  This action
+            provides essential input to verify the NETCONF/RESTCONF server's 
             identity.  For instance, when using TLS, the input can be
             compared to the domain names and IP addresses encoded in
             X.509 certificates.  Similarly, when using SSH, the input
             can be compared to information persisted previously.</t>
   
-            <t>However, when receiving a NETCONF Call Home connection,
-            the NETCONF client does not have any context
+            <t>However, when receiving a call home connection,
+            the NETCONF/RESTCONF client does not have any context
             leading it to know the connection is from a particular
-            NETCONF server.   Thus the NETCONF client must derive the
-             NETCONF server's identity using information provided by
-            the network and the NETCONF server itself.  This section
-            describes strategies a NETCONF client can use to identify
-            a NETCONF server.</t>
+            NETCONF/RESTCONF server.   Thus the NETCONF/RESTCONF client must derive the
+             NETCONF/RESTCONF server's identity using information provided by
+            the network and the NETCONF/RESTCONF server itself.  This section
+            describes strategies a NETCONF/RESTCONF client can use to identify
+            a NETCONF/RESTCONF server.</t>
   
-            <t>In addition to identifying a NETCONF server, a NETCONF
-            client must also be able to verify the NETCONF server's
-            credentials.  Verifying a NETCONF server's credentials is
+            <t>In addition to identifying a NETCONF/RESTCONF server, a NETCONF/RESTCONF
+            client must also be able to verify the NETCONF/RESTCONF server's
+            credentials.  Verifying a NETCONF/RESTCONF server's credentials is
             necessary under normal circumstances but, due to call home
-            being commonly used for newly deployed NETCONF servers, how to verify
+            being commonly used for newly deployed NETCONF/RESTCONF servers, how to verify
             its credentials the very first time becomes a prominent concern.
-            Therefore, this section also describes strategies a NETCONF
-            client can use to verify a NETCONF server's credentials.</t>
+            Therefore, this section also describes strategies a NETCONF/RESTCONF
+            client can use to verify a NETCONF/RESTCONF server's credentials.</t>
   
-            <t>The first information a NETCONF client learns from a
-            NETCONF Call Home connection is the IP address of the NETCONF server,
+            <t>The first information a NETCONF/RESTCONF client learns from a
+            call rhHome connection is the IP address of the NETCONF/RESTCONF server,
             as provided by the source address of the TCP connection.
             This IP address could be used as an identifier directly, but
             doing so would only work in networks that use known static 
-            addresses, in which case a standard NETCONF connection would
+            addresses, in which case a standard NETCONF/RESTCONF connection would
             have worked just as well.  Due to this limited use, it is not
-            recommended to identify a NETCONF server based on its source
+            recommended to identify a NETCONF/RESTCONF server based on its source
             IP address.</t>
   
-            <t>The next information a NETCONF client learns is
-            provided by the NETCONF server in the form of a host-key
+            <t>The next information a NETCONF/RESTCONF client learns is
+            provided by the NETCONF/RESTCONF server in the form of a host-key
             or a certificate, for the SSH and TLS protocols respectively.
             Without examining the contents of the host-key or certificate,
-            it is possible to form an identity for the NETCONF server 
-            using it (e.g., a fingerprint), since each NETCONF server
+            it is possible to form an identity for the NETCONF/RESTCONF server 
+            using it directly (e.g., a fingerprint), since each NETCONF/RESTCONF server
             is assumed to have a statistically unique public key, even
             in virtualized environments.  This strategy also provides
-            a mechanism to verify the NETCONF server, in that
-            a secure connection can only be established with the NETCONF 
+            a mechanism to verify the NETCONF/RESTCONF server, in that
+            a secure connection can only be established with the NETCONF/RESTCONF 
             server having the matching private key.  This strategy is 
             commonly implemented by SSH clients, and could be used equally 
             well by TLS-based clients, such as may be required when the 
-            NETCONF servers have self-signed certificates.  This strategy
-            is viable and useful when the NETCONF servers call home using
+            NETCONF/RESTCONF servers have self-signed certificates.  This strategy
+            is viable and useful when the NETCONF/RESTCONF servers call home using
             either SSH with standard RSA/DSA host-keys, or using TLS with
             self-signed certificates.</t> 
   
-            <t>Yet another option for identifying a NETCONF server
+            <t>Yet another option for identifying a NETCONF/RESTCONF server
             is for its host key or certificate to encode its identity
             directly (e.g., within the "Subject" field).  However, in
             order to trust the content encoded within a host-key or 
             certificate, it must be signed by a certificate authority
-            trusted by the NETCONF client.  This strategy's use of PKI
-            enables a NETCONF client to transparently authenticate 
-            NETCONF servers, thus eliminating the need for manual 
+            trusted by the NETCONF/RESTCONF client.  This strategy's use of PKI
+            enables a NETCONF/RESTCONF client to transparently authenticate 
+            NETCONF/RESTCONF servers, thus eliminating the need for manual 
             authentication, as required by the previously discussed 
             strategies.  Elimination of manual steps is needed to achieve
             scalable solutions, however one can claim that this merely
-            pushes equivalent work to provisioning the NETCONF servers
+            pushes equivalent work to provisioning the NETCONF/RESTCONF servers
             with signed credentials.  This assessment is accurate in 
             general, but not in the case where the manufacturer itself 
             provisions the credentials, such as is described by 
-            <xref target="Std-802.1AR-2009"/>.  When NETCONF servers
-            are pre-provisioned this way, NETCONF clients can
-            transparently authenticate NETCONF servers using just the 
-            manufacturer's trust anchor and a list of expected NETCONF 
+            <xref target="Std-802.1AR-2009"/>.  When NETCONF/RESTCONF servers
+            are pre-provisioned this way, NETCONF/RESTCONF clients can
+            transparently authenticate NETCONF/RESTCONF servers using just the 
+            manufacturer's trust anchor and a list of expected NETCONF/RESTCONF 
             server identifiers, which could be provided along with 
             shipping information.  This strategy is recommended for
             all deployment scenarios.</t>
@@ -302,8 +301,9 @@
         <section anchor="sec-con" title="Security Considerations">
             <t>The security considerations described throughout 
             <xref target="RFC6242"/> and <xref target="RFC5539"/>,
-            and by extension <xref target="RFC4253"/> and 
-            <xref target="RFC5246"/>, apply here as well.</t>
+            and by extension <xref target="RFC4253"/>, 
+            <xref target="RFC5246"/>, and <xref target="draft-ietf-netconf-restconf"/>
+            apply here as well.</t>
 
             <t>This RFC deviates from standard SSH and TLS usage by
             having the SSH/TLS server initiate the underlying TCP 
@@ -313,15 +313,15 @@
             "some reliable transport protocol" without further 
             attribution.</t>
             
-            <t>For SSH, not having the SSH client initiate the TCP
+            <t>Not having the SSH/TLS client initiate the TCP
             connection means that it does not have a preconceived
-            notion of the SSH server's identity, and therefore must
+            notion of the SSH/TLS server's identity, and therefore must
             dynamically derive one from information provided by the
-            network or the SSH server itself.  Security Considerations
+            network or the SSH/TLS server itself.  Security Considerations
             for strategies for this are described in 
             <xref target="svr-id-and-ver"/>.</t>
 
-            <t>An attacker could DoS the NETCONF client by 
+            <t>An attacker could DoS the NETCONF/RESTCONF client by 
             having it perform computationally expensive operations, before
             deducing that the attacker doesn't posses a valid key.
             This is no different than any secured service and all common 
@@ -330,11 +330,11 @@
         </section>
 
         <section title="IANA Considerations">
-          <t>This document requests that IANA assigns two TCP port numbers
+          <t>This document requests that IANA assigns three TCP port numbers
           in the "Registered Port Numbers" range with the service names
-          "netconf-ch-ssh" and "netconf-ch-tls".  These ports will be the
-          default ports for NETCONF Call Home protocol when using SSH and
-          TLS respectively.  Below is the registration template following
+          "netconf-ch-ssh", "netconf-ch-tls", and "restconf-ch-tls".  These
+          ports will be the default ports for NETCONF Call Home and RESTCONF
+          Call Home protocols.  Below is the registration template following
           the rules in <xref target="RFC6335"/>.</t>
 
           <t>
@@ -346,7 +346,7 @@ Assignee:               IESG <iesg@ietf.org>
 Contact:                IETF Chair <chair@ietf.org>
 Description:            NETCONF Call Home (SSH)
 Reference:              RFC XXXX
-Port Number:            YYYY
+Port Number:            PORT-X
 
 Service Name:           netconf-ch-tls
 Transport Protocol(s):  TCP
@@ -354,7 +354,15 @@ Assignee:               IESG <iesg@ietf.org>
 Contact:                IETF Chair <chair@ietf.org>
 Description:            NETCONF Call Home (TLS)
 Reference:              RFC XXXX
-Port Number:            ZZZZ
+Port Number:            PORT-Y
+
+Service Name:           restconf-ch-tls
+Transport Protocol(s):  TCP
+Assignee:               IESG <iesg@ietf.org>
+Contact:                IETF Chair <chair@ietf.org>
+Description:            RESTCONF Call Home (TLS)
+Reference:              RFC XXXX
+Port Number:            PORT-Z
 ]]></artwork>
             </figure>
           </t>
@@ -384,6 +392,28 @@ Port Number:            ZZZZ
           &rfc6241;
           &rfc6242;
           &rfc6335;
+         <reference anchor='draft-ietf-netconf-restconf'>
+           <front>
+             <title>
+               RESTCONF Protocol
+             </title>
+             <author initials='A.B.' surname='Bierman'
+                fullname='Andy Bierman'>
+               <organization>YumaWorks</organization>
+             </author>
+             <author initials='M.B.' surname='Bjorklund'
+                 fullname='Martin Bjorklund'>
+               <organization>Tail-f Systems</organization>
+             </author>
+             <author initials='K.W.' surname='Watsen'
+                fullname='Kent Watsen'>
+               <organization>Juniper Networks</organization>
+             </author>
+             <date year='2014' />
+           </front>
+           <seriesInfo name='Internet-Draft'
+                  value='draft-ieft-netconf-restconf-04' />
+         </reference>
         </references>
         <references title="Informative References">
           <reference anchor="Std-802.1AR-2009" target="http://standards.ieee.org/findstds/standard/802.1AR-2009.html">
@@ -428,6 +458,13 @@ Port Number:            ZZZZ
               <t>Fixed reference in Applicability Statement so it would work
               equally well for SSH and TLS.</t>
               <t>Fixed reported odd wording and three references.</t>
+            </list>
+          </t>
+        </section>
+        <section title="01 to 02">
+          <t>
+            <list style="symbols">
+              <t>Added call home support for the RESTCONF protocol.</t>
             </list>
           </t>
         </section>
