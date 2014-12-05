@@ -465,6 +465,8 @@ Port Number:            PORT-Z
           <t>
             <list style="symbols">
               <t>Added call home support for the RESTCONF protocol.</t>
+              <t>Fixed paragraph 3 of Security Considerations to equally
+              apply to the TLS protocol.</t> 
             </list>
           </t>
         </section>
