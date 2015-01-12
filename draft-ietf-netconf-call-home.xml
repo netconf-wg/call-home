@@ -190,15 +190,15 @@
           <section title="Protocol Operation">
           <t>
             <list style="symbols">
-              <t>The NETCONF/RESTCONF server initiates a TCP connection to
+              <t>The NETCONF/RESTCONF server initiates a TCP connection request (SYN) to
               the NETCONF/RESTCONF client on one of the IANA-assigned ports
               for call home (PORT-X for netconf-ch-ssh,  PORT-Y for 
               netconf-ch-tls, or PORT-Z for restconf-ch-tls).</t>
-              <t>The TCP connection is accepted and a TCP session is
+              <t>The TCP connection request is accepted and a TCP connection is
               established.</t>
-              <t>Using this TCP session, the NETCONF/RESTCONF server immediately
-              starts either the SSH-server or the TLS-server protocol, 
-              depending on which port is connected.  The server MUST start 
+              <t>Using this TCP connection, the NETCONF/RESTCONF server MUST immediately
+              start using either the SSH-server or the TLS-server protocol, 
+              depending on which port receives the connection request.  The server MUST start 
               the SSH-server protocol when port PORT-X is connected or the 
               TLS-server protocol when either port PORT-Y or PORT-Z is 
               connected.  The SSH-server and TLS-server protocols are described
@@ -231,10 +231,10 @@
               Call Home (PORT-X for netconf-ch-ssh and PORT-Y for netconf-ch-tls)
               or RESTCONF Call Home (PORT-Z for restconf-ch-tls).</t>
               <t>The NETCONF/RESTCONF client accepts an incoming TCP
-              connection and a TCP session is established.</t>
-              <t>Using this TCP session, the NETCONF/RESTCONF client immediately
-              starts either the SSH-client or the TLS-client protocol, 
-              depending on which port is connected.  The  client MUST start 
+              connection request and a TCP connection is established.</t>
+              <t>Using this TCP connection, the NETCONF/RESTCONF client MUST immediately
+              start using either the SSH-client or the TLS-client protocol, 
+              depending on which port it connected to.  The client MUST start 
               the SSH-client protocol when port PORT-X is connected and the
               TLS-client protocol when port PORT-Y or PORT-Z is connected.
               The SSH-client and TLS-client protocols are described by
@@ -509,7 +509,9 @@ Port Number:            PORT-Z
         <section title="02 to 03">
           <t>
             <list style="symbols">
-              <t>Added RFC Editor notes</t>
+              <t>Removed "FIXME" in section 1.3 (issue #7)</t>
+              <t>Added RFC Editor notes (issue #8)</t>
+              <t>Removed "TCP session" term (issue #9)</t>
             </list>
           </t>
         </section>
