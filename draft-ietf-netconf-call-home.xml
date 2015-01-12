@@ -48,6 +48,42 @@
             which respectively enable a NETCONF/RESTCONF server to initiate a
             secure connection to a NETCONF/RESTCONF client.</t>
         </abstract>
+
+        <note title="Editorial Note (To be removed by RFC Editor)">
+          <t>This draft contains many placeholder values that need to be replaced
+          with finalized values at the time of publication.  This note summarizes
+          all of the substitutions that are needed.  Please note that no other
+          RFC Editor instructions are specified anywhere else in this document.</t>
+
+          <t>Artwork in this document contains placeholder references for this draft.
+          Please apply the following replacement:
+            <list  style="symbols">
+              <t><spanx style="verb">XXXX</spanx> --&gt; the assigned RFC value for this draft</t>
+            </list>
+          </t>
+          <t>This document contains references to other drafts in progress, both in
+          the Normative References section, as well as in body text throughout.
+          Please update the following references to reflect their final RFC assignments:
+            <list style="symbols">
+              <t>draft-ietf-netconf-restconf</t>
+              <t>draft-ietf-netconf-server-model</t>
+            </list>
+          </t>
+          <t>Artwork in this document contains placeholder values for ports pending IANA assignment
+          from "draft-ietf-netconf-call-home".  Please apply the following replacements:
+            <list  style="symbols">
+              <t><spanx style="verb">PORT-X</spanx> --&gt; the assigned port value for "netconf-ch-ssh"</t>
+              <t><spanx style="verb">PORT-Y</spanx> --&gt; the assigned port value for "netconf-ch-tls"</t>
+              <t><spanx style="verb">PORT-Z</spanx> --&gt; the assigned port value for "restconf-ch-tls"</t>
+            </list>
+          </t>
+          <t>The following two Appendix sections are to be removed prior to publication:
+            <list  style="symbols">
+              <t>Appendix A.  Change Log</t>
+              <t>Appendix B.  Open Issues</t>
+            </list>
+          </t>
+        </note>
     </front>
 
     <middle>
@@ -470,8 +506,19 @@ Port Number:            PORT-Z
             </list>
           </t>
         </section>
+        <section title="02 to 03">
+          <t>
+            <list style="symbols">
+              <t>Added RFC Editor notes</t>
+            </list>
+          </t>
+        </section>
+
       </section>
 
+      <section title="Open Issues">
+        <t>All issues with this draft are tracked using GitHub issues.  Please see: https://github.com/netconf-wg/call-home/issues to see currently opened issues.</t>
+      </section>
     </back>
 
 </rfc>
