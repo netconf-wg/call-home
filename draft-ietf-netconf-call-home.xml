@@ -161,7 +161,7 @@
             and RESTCONF protocols require clients and servers to 
             verify the identity of the other party before starting the
             NETCONF/RESTCONF protocol (section 2.2 of <xref target="RFC6241"/> and
-            section FIXME of <xref target="draft-ietf-netconf-restconf"/>).</t>
+            sections 2.4 and 2.5 of <xref target="draft-ietf-netconf-restconf"/>).</t>
 
             <t>This contrasts with the base SSH and TLS protocols, which
             do not require programmatic verification of the other party
