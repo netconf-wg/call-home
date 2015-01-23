@@ -278,13 +278,13 @@
             a NETCONF/RESTCONF server.</t>
   
             <t>In addition to identifying a NETCONF/RESTCONF server, a NETCONF/RESTCONF
-            client must also be able to verify the NETCONF/RESTCONF server's
-            credentials.  Verifying a NETCONF/RESTCONF server's credentials is
+            client must also be able to verify the server's identity.
+            Verifying a NETCONF/RESTCONF server's identity is
             necessary under normal circumstances but, due to call home
             being commonly used for newly deployed NETCONF/RESTCONF servers, how to verify
-            its credentials the very first time becomes a prominent concern.
+            its identity the very first time becomes a prominent concern.
             Therefore, this section also describes strategies a NETCONF/RESTCONF
-            client can use to verify a NETCONF/RESTCONF server's credentials.</t>
+            client can use to verify a NETCONF/RESTCONF server's identity.</t>
   
             <t>The first information a NETCONF/RESTCONF client learns from a
             call home connection is the IP address of the NETCONF/RESTCONF server,
@@ -301,10 +301,10 @@
             or a certificate, for the SSH and TLS protocols respectively.
             Without examining the contents of the host-key or certificate,
             it is possible to form an identity for the NETCONF/RESTCONF server 
-            using it directly (e.g., a fingerprint), since each NETCONF/RESTCONF server
+            using it directly (e.g., a fingerprint).  This works because each NETCONF/RESTCONF server
             is assumed to have a statistically unique public key, even
             in virtualized environments.  This strategy also provides
-            a mechanism to verify the NETCONF/RESTCONF server, in that
+            a mechanism to verify the identity of the NETCONF/RESTCONF server, in that
             a secure connection can only be established with the NETCONF/RESTCONF 
             server having the matching private key.  This strategy is 
             commonly implemented by SSH clients, and could be used equally 
@@ -320,15 +320,15 @@
             order to trust the content encoded within a host-key or 
             certificate, it must be signed by a certificate authority
             trusted by the NETCONF/RESTCONF client.  This strategy's use of PKI
-            enables a NETCONF/RESTCONF client to transparently authenticate 
-            NETCONF/RESTCONF servers, thus eliminating the need for manual 
+            enables a NETCONF/RESTCONF client to transparently authenticate the
+            NETCONF/RESTCONF server's certificate, thus eliminating the need for manual 
             authentication, as required by the previously discussed 
             strategies.  Elimination of manual steps is needed to achieve
             scalable solutions, however one can claim that this merely
             pushes equivalent work to provisioning the NETCONF/RESTCONF servers
-            with signed credentials.  This assessment is accurate in 
+            with signed certificates.  This assessment is accurate in 
             general, but not in the case where the manufacturer itself 
-            provisions the credentials, such as is described by 
+            provisions the certificates, such as is described by 
             <xref target="Std-802.1AR-2009"/>.  When NETCONF/RESTCONF servers
             are pre-provisioned this way, NETCONF/RESTCONF clients can
             transparently authenticate NETCONF/RESTCONF servers using just the 
@@ -531,6 +531,14 @@ Port Number:            PORT-Z
             </list>
           </t>
         </section>
+        <section title="03 to 04">
+          <t>
+            <list style="symbols">
+              <t>Replaced "verify crendentials" with "verify identity" (issue #11)</t>
+            </list>
+          </t>
+        </section>
+
 
       </section>
 
