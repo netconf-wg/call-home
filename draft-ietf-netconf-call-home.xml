@@ -534,7 +534,7 @@ Port Number:            PORT-Z
         <section title="03 to 04">
           <t>
             <list style="symbols">
-              <t>Replaced "verify crendentials" with "verify identity" (issue #11)</t>
+              <t>Replaced "verify credentials" with "verify identity" (issue #11)</t>
             </list>
           </t>
         </section>
