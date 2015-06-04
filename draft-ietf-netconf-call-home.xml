@@ -8,6 +8,7 @@
 <!ENTITY rfc5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY rfc6020 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6020.xml">
 <!ENTITY rfc6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
+<!ENTITY rfc6187 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6187.xml">
 <!ENTITY rfc6241 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6241.xml">
 <!ENTITY rfc6242 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6242.xml">
 <!ENTITY rfc6335 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6335.xml">
@@ -103,7 +104,7 @@
           The NETCONF protocol's binding to TLS is defined in 
           <xref target="draft-ietf-netconf-rfc5539bis"/>.</t>
 
-          <t>RESTCONF Call Home only supports TLS, same as the RESTCONF protocol
+          <t>RESTCONF Call Home only supports TLS, the same as the RESTCONF protocol
           <xref target="draft-ietf-netconf-restconf"/>.  The RESTCONF protocol's
           binding to TLS is defined in <xref target="draft-ietf-netconf-restconf"/>.</t>
 
@@ -113,20 +114,20 @@
           <xref target="RFC793"/>.</t>
 
           <t>Both NETCONF Call Home and RESTCONF Call Home preserve all but one 
-          of the client/server roles in their respective protocol stacks, as when
+          of the client/server roles in their respective protocol stacks, as 
           compared to standard NETCONF and RESTCONF connections.  The one and only
-          role reversal that occurs is at the TCP layer; that is, in which peer is
+          role reversal that occurs is at the TCP layer; that is, which peer is
           the TCP-client and which is the TCP-server.</t>
 
-          <t>For example, a network
-          element is traditionally the TCP-server however, when calling home, the
-          network element becomes the TCP-client. The network element's secure
-          transport layer roles (SSH-server, TLS-server) and its application layer
-          roles (NETCONF-server, RESTCONF-server) both remain the same.</t>
+          <t>For example, a network element is traditionally the TCP-server.
+          However, when calling home, the network element becomes the TCP-client.
+          The network element's secure transport layer roles (SSH-server, 
+          TLS-server) and its application layer roles (NETCONF-server, 
+          RESTCONF-server) both remain the same.</t>
 
           <t>Having consistency in both the secure transport layer (SSH, TLS) and 
           application layer (NETCONF, RESTCONF) roles conveniently enables deployed
-          network management infrastructure to also support call home.  For instance, 
+          network management infrastructure to support call home also.  For instance, 
 	  existing certificate chains and user authentication mechanisms are
 	  unaffected by call home.</t>
 
@@ -175,9 +176,11 @@
             <t>The reason for this restriction is that different
             protocols have different security assumptions.  The NETCONF 
             and RESTCONF protocols require clients and servers to 
-            verify the identity of the other party before starting the
-            NETCONF/RESTCONF protocol (section 2.2 of <xref target="RFC6241"/> and
-            sections 2.4 and 2.5 of <xref target="draft-ietf-netconf-restconf"/>).</t>
+            verify the identity of the other party.  This requirement
+            is specified for the NETCONF protocol in Section 2.2 of
+            <xref target="RFC6241"/>, and is specified for the RESTCONF
+            protocol in Sections 2.4 and 2.5 of 
+            <xref target="draft-ietf-netconf-restconf"/>).</t>
 
             <t>This contrasts with the base SSH and TLS protocols, which
             do not require programmatic verification of the other party
@@ -200,6 +203,15 @@
             implications related to this change are discussed in Security
             Considerations (<xref target="sec-con"/>).</t>
           </section>
+
+          <section title="The NETCONF/RESTCONF Convention">
+            <t>Throughout the remainder of this document, the term "NETCONF/RESTCONF"
+            is used as an abbreviation in place of the text "the NETCONF or the RESTCONF".  
+            The NETCONF/RESTCONF abbreviation is not intended to require or
+            to imply that a client or server must implement both
+            the NETCONF standard and the RESTCONF standard.</t>
+          </section>
+
         </section>
 
         <section title="The NETCONF or RESTCONF Client">
@@ -209,7 +221,7 @@
               <t>The NETCONF/RESTCONF client listens for TCP connection requests
 	      from NETCONF/RESTCONF servers.  The client SHOULD listen for connections
 	      on the IANA-assigned ports defined in section <xref target="iana-con"/>,
-	      but MAY be configured to use a non-default port.</t>
+	      but MAY be configured to use a non-standard port.</t>
               <t>The NETCONF/RESTCONF client accepts an incoming TCP
               connection request and a TCP connection is established.</t>
               <t>Using this TCP connection, the NETCONF/RESTCONF client MUST immediately
@@ -223,15 +235,21 @@
               required so NETCONF/RESTCONF servers can depend on it being there for
               call home connections, when keep-alives are needed the most.</t>
 	      <t>As part of establishing an SSH or TLS connection, the NETCONF/RESTCONF
-	      client MUST validate both the server's credentials and identity
-	      (e.g., SSH host key, TLS certificate).  The client first validates the
-	      server's credentials, either via previously trusted validation data 
-	      (e.g., pinning, using the entire host key or certificate as the lookup key)
-	      or via certificate path validation to a preconfigured trust anchor.  The
-	      identity MAY then be derived from the pinned data or extracted from
-	      the server's certificate (e.g., SubjectAltName).  Finally, the client
-	      MUST validate the server's identity is one that it was expecting to 
-	      connect to it.</t>
+	      client MUST validate the server's presented host key or certificate.
+              This validation MAY be accomplished by certificate path validation or by
+              comparing the host key or certificate to a previously trusted or 
+              "pinned" value.</t>
+              <t>If certificate path validation is used, the NETCONF/RESTCONF client MUST
+              ensure that the certificate has a valid chain of trust to a preconfigured 
+              trust anchor and that the certificate encodes an "identifier" 
+              <xref target="RFC6125"/> that the client had awareness of prior to the
+              connection attempt.  How identifiers are encoded in certificates MAY be
+              determined by a policy associated with the certificate's trust anchor.
+              For instance, a given trust anchor may be known to only sign IDevID
+              certificates <xref target="Std-802.1AR-2009"/> having a unique identifier
+              (e.g., serial number) in the X.509 certificate's "CommonName" field.</t>
+              <t>After the server's host key or certificate is validated, the SSH or TLS
+              protocol proceeds as normal to establish a SSH or TLS connection.</t>
               <t>Once the SSH or TLS connection is established, the NETCONF/RESTCONF client
               MUST immediately start using either the NETCONF-client <xref target="RFC6241"/>
               or RESTCONF-client <xref target="draft-ietf-netconf-restconf"/> protocol. 
@@ -243,10 +261,11 @@
           </t>
           </section>
           <section title="Configuration Data Model">
-              <t>How to configure a NETCONF or RESTCONF client is outside the 
+              <t>How a NETCONF or RESTCONF client is configured is outside the 
 	      scope of this document.  This includes configuration that might
 	      be used to enable listening for call home connections, configuring
-	      trust anchors, and/or pinning the identities for expected connections.</t>
+	      trust anchors, or configuring identifiers for expected
+              connections.</t>
           </section>
         </section>
 
@@ -257,7 +276,7 @@
               <t>The NETCONF/RESTCONF server initiates a TCP connection request to
               the NETCONF/RESTCONF client.  The server SHOULD connect to
               one of the IANA-assigned ports defined in section <xref target="iana-con"/>,
-              but MAY be configured to use a non-default port.  Using the IANA-assigned
+              but MAY be configured to use a non-standard port.  Using the IANA-assigned
 	      ports, the server connects to port PORT-X for NETCONF over SSH, port 
 	      PORT-Y for NETCONF over TLS, and port PORT-Z for RESTCONF over TLS.</t>
               <t>The TCP connection request is accepted and a TCP connection is
@@ -268,6 +287,12 @@
               example, assuming the use of the IANA-assigned ports, the SSH-server protocol
 	      is used after connecting to the remote port PORT-X and the TLS-server protocol
 	      is used after connecting to one of the remote ports PORT-Y or PORT-Z.</t>
+              <t>As part of establishing the SSH or TLS connection, the NETCONF/RESTCONF
+              server will send its host key or certificate to the client.  If a certificate
+              is sent, the server MUST also send any intermediate certificates leading
+              up to the trust anchor the clients are expected use to authenticate it.
+              How to send a list of certificates is defined for SSH in <xref target="RFC6187"/>
+              Section 2.1, and for TLS in <xref target="RFC5246"/> Section 7.4.2.</t>
               <t>Once the SSH or TLS connection is established, the NETCONF/RESTCONF server
               MUST immediately start using either the NETCONF-server <xref target="RFC6241"/>
               or RESTCONF-server <xref target="draft-ietf-netconf-restconf"/> protocol, 
@@ -288,7 +313,7 @@
           </t>
           </section>
           <section title="Configuration Data Model">
-              <t>How to configure a NETCONF or RESTCONF server is outside the 
+              <t>How a NETCONF or RESTCONF server is configured is outside the 
 	      scope of this document. This includes configuration that might
 	      be used to specify hostnames, IP addresses, ports, algorithms, 
 	      or other relevant parameters.</t>
@@ -313,10 +338,13 @@
 	    "the client MUST construct a list of acceptable reference identifiers,
 	    and MUST do so independently of the identifiers presented by the service."
 	    To account for these variances, this RFC requires that the 
-	    NETCONF/RESTCONF client be able to 1) validate the SSH host key via
-	    pinning and/or PKI, 2) extract an identity from the server's SSH 
-	    host-key or TLS certificate, and 3) validate that the identity is one
-	    that the client was expecting to connect to it.</t>
+	    NETCONF/RESTCONF client validate the SSH host key or certificate via
+            certificate path validation to a preconfigured trust anchor or by 
+            comparing the host key or certificate to a previously trusted or
+            "pinned" value.  Furthermore, if certificate path validation is used, 
+            this RFC requires that the client be able to match a presented identifier 
+            encoded in the certificate with an identifier the client was preconfigured 
+            to expect.</t>
 
             <t>An attacker could launch a denial of service (DoS) attack
 	    on the NETCONF/RESTCONF client by 
@@ -400,6 +428,7 @@ Port Number:            PORT-Z
           &rfc5246;
           &rfc6020;
           &rfc6125;
+          &rfc6187;
           &rfc6241;
           &rfc6242;
           &rfc6335;
@@ -448,7 +477,6 @@ Port Number:            PORT-Z
          </reference>
         </references>
         <references title="Informative References">
-<!--
           <reference anchor="Std-802.1AR-2009" target="http://standards.ieee.org/findstds/standard/802.1AR-2009.html">
               <front>
                   <title>IEEE Standard for Local and metropolitan area networks - Secure Device Identity</title>
@@ -458,14 +486,6 @@ Port Number:            PORT-Z
                   <date month="December" year="2009"/>
               </front>
           </reference>
-          <reference anchor="iesg-statement" target="https://www.ietf.org/iesg/statement/writable-mib-module.html">
-            <front>
-              <title>Writable MIB Module IESG Statement</title>
-              <author initials="IESG" fullname="Internet Engineering Steering Group"/>
-              <date month="March" day="2" year="2014"/>
-            </front>
-          </reference>
--->
           <reference anchor="draft-ietf-netconf-server-model" target="http://tools.ietf.org/html/draft-ietf-netconf-server-model">
               <front>
                   <title>NETCONF Server Configuration Model</title>
@@ -530,6 +550,21 @@ Port Number:            PORT-Z
               <t>Added text about keep-alives</t>
               <t>Added Configuration Data Model section for client protocol</t>
               <t>Improved Security Considerations section</t>
+            </list>
+          </t>
+        </section>
+        <section title="05 to 06">
+          <t>
+            <list style="symbols">
+              <t>Addressed comments raised by Alan Luchuk.</t>
+            </list>
+          </t>
+        </section>
+        <section title="06 to 07">
+          <t>
+            <list style="symbols">
+              <t>replaced "reference identfier" with "identifier"</t>
+              <t>added reference to RFC6125</t>
             </list>
           </t>
         </section>
