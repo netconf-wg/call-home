@@ -316,10 +316,9 @@
               <t>How a NETCONF or RESTCONF server is configured is outside the 
 	      scope of this document. This includes configuration that might
 	      be used to specify hostnames, IP addresses, ports, algorithms, 
-	      or other relevant parameters.</t>
-	      <t>A YANG <xref target="RFC6020"/> model for configuring both 
-	      NETCONF and RESTCONF servers, including call home, is provided in
-              <xref target="draft-ietf-netconf-server-model"/>.</t>
+	      or other relevant parameters.  That said, a YANG <xref target="RFC6020"/>
+              model for configuring NETCONF and RESTCONF servers, including call home,
+              is provided in <xref target="draft-ietf-netconf-server-model"/>.</t>
           </section>
         </section>
 
@@ -426,7 +425,6 @@ Port Number:            PORT-Z
           &rfc4253;
           &rfc4254;
           &rfc5246;
-          &rfc6020;
           &rfc6125;
           &rfc6187;
           &rfc6241;
@@ -477,6 +475,9 @@ Port Number:            PORT-Z
          </reference>
         </references>
         <references title="Informative References">
+
+          &rfc6020;
+
           <reference anchor="Std-802.1AR-2009" target="http://standards.ieee.org/findstds/standard/802.1AR-2009.html">
               <front>
                   <title>IEEE Standard for Local and metropolitan area networks - Secure Device Identity</title>
@@ -563,8 +564,9 @@ Port Number:            PORT-Z
         <section title="06 to 07">
           <t>
             <list style="symbols">
-              <t>replaced "reference identfier" with "identifier"</t>
+              <t>replaced "reference identifier" with "identifier"</t>
               <t>added reference to RFC6125</t>
+              <t>moved reference to 6020 to Informative section</t>
             </list>
           </t>
         </section>
