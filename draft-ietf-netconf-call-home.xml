@@ -115,7 +115,7 @@
 
           <t>Both NETCONF Call Home and RESTCONF Call Home preserve all but one 
           of the client/server roles in their respective protocol stacks, as 
-          compared to standard NETCONF and RESTCONF connections.  The one and only
+          compared to client-initiated NETCONF and RESTCONF connections.  The one and only
           role reversal that occurs is at the TCP layer; that is, which peer is
           the TCP-client and which is the TCP-server.</t>
 
@@ -289,10 +289,17 @@
 	      is used after connecting to one of the remote ports PORT-Y or PORT-Z.</t>
               <t>As part of establishing the SSH or TLS connection, the NETCONF/RESTCONF
               server will send its host key or certificate to the client.  If a certificate
-              is sent, the server MUST also send any intermediate certificates leading
-              up to the trust anchor the clients are expected use to authenticate it.
-              How to send a list of certificates is defined for SSH in <xref target="RFC6187"/>
-              Section 2.1, and for TLS in <xref target="RFC5246"/> Section 7.4.2.</t>
+              is sent, the server MUST also send all intermediate certificates leading up
+              to the certificate's trust anchor.  How to send a list of certificates is 
+              defined for SSH in <xref target="RFC6187"/> Section 2.1, and for TLS in 
+              <xref target="RFC5246"/> Section 7.4.2.</t>
+              <t>In most cases, establishing the SSH or TLS connection also entails
+              server authentication of client credentials; only with RESTCONF do some 
+              client authentication schemes occur after the secure transport connection
+              (TLS) has been established.  If client authentication is required, and
+              the client is unable to successfully authenticate itself to the server
+              in an amount of time defined by local policy, the server MUST close the
+              connection.</t>
               <t>Once the SSH or TLS connection is established, the NETCONF/RESTCONF server
               MUST immediately start using either the NETCONF-server <xref target="RFC6241"/>
               or RESTCONF-server <xref target="draft-ietf-netconf-restconf"/> protocol, 
@@ -567,6 +574,16 @@ Port Number:            PORT-Z
               <t>replaced "reference identifier" with "identifier"</t>
               <t>added reference to RFC6125</t>
               <t>moved reference to 6020 to Informative section</t>
+            </list>
+          </t>
+        </section>
+        <section title="07 to 08">
+          <t>
+            <list style="symbols">
+              <t>Added text regarding client authentication</t>
+              <t>Now says client-initiated (not standard) NETCONF/RESTCONF connections</t>
+              <t>Now says server must send all (not any) intermediate certificates</t>
+              <t>Improved wording based on suggestions from Jonathan and Tom</t>
             </list>
           </t>
         </section>
