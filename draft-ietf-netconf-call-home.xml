@@ -13,6 +13,7 @@
 <!ENTITY rfc6242 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6242.xml">
 <!ENTITY rfc6335 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6335.xml">
 <!ENTITY rfc6520 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6520.xml">
+<!ENTITY rfc7589 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7589.xml">
 ]>
 
 
@@ -32,8 +33,7 @@
 
 <rfc category="std"
      ipr="trust200902"
-     docName="draft-ietf-netconf-call-home-latest"
-     updates="4253">
+     docName="draft-ietf-netconf-call-home-latest">
     <front>
         <title>NETCONF Call Home and RESTCONF Call Home</title>
         <author initials="K.W." surname="Watsen" fullname="Kent Watsen">
@@ -64,13 +64,11 @@
               <t><spanx style="verb">XXXX</spanx> --&gt; the assigned RFC value for this draft</t>
             </list>
           </t>
-          <t>This document contains references to other drafts in progress, both in
+          <t>This document contains references to another drafts in progress, both in
           the Normative References section, as well as in body text throughout.
-          Please update the following references to reflect their final RFC assignments:
+          Please update the following reference to reflect its final RFC assignment:
             <list style="symbols">
               <t>draft-ietf-netconf-restconf</t>
-              <t>draft-ietf-netconf-rfc5539bis</t>
-              <t>draft-ietf-netconf-server-model</t>
             </list>
           </t>
           <t>Artwork in this document contains placeholder values for ports pending IANA assignment
@@ -102,7 +100,7 @@
           by the NETCONF protocol <xref target="RFC6241"/>, SSH and TLS.
           The NETCONF protocol's binding to SSH is defined in <xref target="RFC6242"/>.
           The NETCONF protocol's binding to TLS is defined in 
-          <xref target="draft-ietf-netconf-rfc5539bis"/>.</t>
+          <xref target="RFC7589"/>.</t>
 
           <t>RESTCONF Call Home only supports TLS, the same as the RESTCONF protocol
           <xref target="draft-ietf-netconf-restconf"/>.  The RESTCONF protocol's
@@ -141,7 +139,7 @@
                 itself with its management system.</t>
                 <t>The network element may access the network in a way that
                 dynamically assigns it an IP address, but does not register
-                its assigned IP address to a mapping service.</t>
+                its assigned IP address to a mapping service (e.g., dynamic DNS).</t>
                 <t>The network element may be deployed behind a firewall
                 that implements network address translation (NAT)
                 for all internal network IP addresses.</t>
@@ -153,7 +151,7 @@
                 system to connect to.</t>
                 <t>The operator may prefer to have network elements initiate
                 management connections, believing it is easier to secure one
-                open-port in the data center than to have an open port on
+                open port in the data center than to have an open port on
                 each network element in the network.</t>
               </list>
             </t>
@@ -192,10 +190,10 @@
             a thorough, contextual security analysis.</t>
           </section>
 
-          <section title="Update to RFC 4253">
-            <t>This document updates the SSH Transport Layer Protocol
-            <xref target="RFC4253"/> only in removing the statement "The client
-            initiates the connection" made in Section 4 (Connection Setup).
+          <section title="Relation to RFC 4253">
+            <t>This document uses the SSH Transport Layer Protocol
+            <xref target="RFC4253"/> with the exception that the statement "The client
+            initiates the connection" made in Section 4 (Connection Setup) does not apply.
 	    Assuming the reference to client means "SSH client" and
 	    the reference to connection means "TCP connection", this statement
 	    doesn't hold true in call home, where the network element is the
@@ -207,14 +205,15 @@
           <section title="The NETCONF/RESTCONF Convention">
             <t>Throughout the remainder of this document, the term "NETCONF/RESTCONF"
             is used as an abbreviation in place of the text "the NETCONF or the RESTCONF".  
-            The NETCONF/RESTCONF abbreviation is not intended to require or
-            to imply that a client or server must implement both
-            the NETCONF standard and the RESTCONF standard.</t>
+            The NETCONF/RESTCONF abbreviation is not intended to require or to imply that
+            a client or server must implement both the NETCONF standard and the RESTCONF
+            standard.</t>
           </section>
 
         </section>
 
         <section title="The NETCONF or RESTCONF Client">
+          <t>The term "NETCONF/RESTCONF client" can refer to the <xref target="RFC6241"/>, Section 1.1 "client".</t>
           <section title="Protocol Operation">
           <t>
             <list style="format C%d">
@@ -270,6 +269,7 @@
         </section>
 
         <section title="The NETCONF or RESTCONF Server">
+          <t>The term "NETCONF/RESTCONF server" can refer to the <xref target="RFC6241"/>, Section 1.1 "server".</t>
           <section title="Protocol Operation">
           <t>
             <list style="format S%d">
@@ -332,7 +332,7 @@
         <section anchor="sec-con" title="Security Considerations">
 
             <t>The security considerations described in 
-            <xref target="RFC6242"/> and <xref target="draft-ietf-netconf-rfc5539bis"/>,
+            <xref target="RFC6242"/> and <xref target="RFC7589"/>,
             and by extension <xref target="RFC4253"/>, 
             <xref target="RFC5246"/>, and <xref target="draft-ietf-netconf-restconf"/>
             apply here as well.</t>
@@ -438,26 +438,7 @@ Port Number:            PORT-Z
           &rfc6242;
           &rfc6335;
           &rfc6520;
-
-         <reference anchor="draft-ietf-netconf-rfc5539bis" target="https://tools.ietf.org/html/draft-ietf-netconf-rfc5539bis">
-           <front>
-             <title>
- 	       Using the NETCONF Protocol over Transport Layer Security (TLS) 
-  	       with Mutual X.509 Authentication
-	     </title>
-             <author initials="M." surname="Badra" fullname="M. Badra">
-               <organization/>
-             </author>
-             <author initials="A." surname="Luchuk" fullname="A. Luchuk">
-               <organization/>
-             </author>
-             <author initials="J." surname="Schoenwaelder" fullname="J. Schoenwaelder">
-               <organization/>
-             </author>
-             <date year="2015" month="April"/>
-           </front>
-           <seriesInfo name="Internet-Draft" value="draft-ietf-netconf-rfc5539bis-10"/>
-         </reference>
+          &rfc7589;
          <reference anchor="draft-ietf-netconf-restconf" target="https://tools.ietf.org/html/draft-ietf-netconf-restconf">
            <front>
              <title>
@@ -584,6 +565,15 @@ Port Number:            PORT-Z
               <t>Now says client-initiated (not standard) NETCONF/RESTCONF connections</t>
               <t>Now says server must send all (not any) intermediate certificates</t>
               <t>Improved wording based on suggestions from Jonathan and Tom</t>
+            </list>
+          </t>
+        </section>
+        <section title="08 to 09">
+          <t>
+            <list style="symbols">
+              <t>Added dynamic DNS as an example for an IP mapping service</t>
+              <t>Replaced draft-ietf-netconf-rfc5539bis with RFC7589</t>
+              <t>Recharacterized this draft's relationship to RFC4253</t>
             </list>
           </t>
         </section>
