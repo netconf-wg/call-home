@@ -64,7 +64,7 @@
               <t><spanx style="verb">XXXX</spanx> --&gt; the assigned RFC value for this draft</t>
             </list>
           </t>
-          <t>This document contains references to another drafts in progress, both in
+          <t>This document contains references to another draft in progress, both in
           the Normative References section, as well as in body text throughout.
           Please update the following reference to reflect its final RFC assignment:
             <list style="symbols">
@@ -219,7 +219,7 @@
             <list style="format C%d">
               <t>The NETCONF/RESTCONF client listens for TCP connection requests
 	      from NETCONF/RESTCONF servers.  The client SHOULD listen for connections
-	      on the IANA-assigned ports defined in section <xref target="iana-con"/>,
+	      on the IANA-assigned ports defined in <xref target="iana-con"/>,
 	      but MAY be configured to use a non-standard port.</t>
               <t>The NETCONF/RESTCONF client accepts an incoming TCP
               connection request and a TCP connection is established.</t>
@@ -275,7 +275,7 @@
             <list style="format S%d">
               <t>The NETCONF/RESTCONF server initiates a TCP connection request to
               the NETCONF/RESTCONF client.  The server SHOULD connect to
-              one of the IANA-assigned ports defined in section <xref target="iana-con"/>,
+              one of the IANA-assigned ports defined in <xref target="iana-con"/>,
               but MAY be configured to use a non-standard port.  Using the IANA-assigned
 	      ports, the server connects to port PORT-X for NETCONF over SSH, port 
 	      PORT-Y for NETCONF over TLS, and port PORT-Z for RESTCONF over TLS.</t>
@@ -577,6 +577,21 @@ Port Number:            PORT-Z
             </list>
           </t>
         </section>
+        <section title="09 to 10">
+          <t>
+            <list style="symbols">
+              <t>Updates from AD review</t>
+            </list>
+          </t>
+        </section>
+        <section title="10 to 11">
+          <t>
+            <list style="symbols">
+              <t>Fixed typo introduced in -10</t>
+            </list>
+          </t>
+        </section>
+
       </section>
 
       <section title="Open Issues">
