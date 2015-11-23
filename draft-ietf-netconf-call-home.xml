@@ -213,7 +213,7 @@
         </section>
 
         <section title="The NETCONF or RESTCONF Client">
-          <t>The term "NETCONF/RESTCONF client" can refer to the <xref target="RFC6241"/>, Section 1.1 "client".</t>
+          <t>The term "client" is defined in <xref target="RFC6241"/>, Section 1.1 "client".  In the context of network management, the NETCONF/RESTCONF client might be a network management system.</t>
           <section title="Protocol Operation">
           <t>
             <list style="format C%d">
@@ -269,7 +269,7 @@
         </section>
 
         <section title="The NETCONF or RESTCONF Server">
-          <t>The term "NETCONF/RESTCONF server" can refer to the <xref target="RFC6241"/>, Section 1.1 "server".</t>
+          <t>The term "server" is defined in <xref target="RFC6241"/>, Section 1.1 "server".  In the context of network management, the NETCONF/RESTCONF server might be a network element or a device.</t>
           <section title="Protocol Operation">
           <t>
             <list style="format S%d">
