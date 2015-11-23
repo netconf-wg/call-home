@@ -379,7 +379,7 @@
             For instance, in TLS 1.3 <xref target="draft-ietf-tls-tls13"/>,
             the ClientHello message contains a Key Share value based
             on an asymmetric key operation.  
-            This is no different than any secured service and all common 
+            This is similar to any other secured service and all common 
             precautions apply (e.g., temporarily blacklisting the source address
             after a set number of unsuccessful login attempts).</t>
 
