@@ -303,8 +303,8 @@
               to the certificate's trust anchor.  How to send a list of certificates is 
               defined for SSH in <xref target="RFC6187"/> Section 2.1, and for TLS in 
               <xref target="RFC5246"/> Section 7.4.2.</t>
-              <t>In most cases, establishing the SSH or TLS connection also entails
-              server authentication of client credentials; only with RESTCONF do some 
+              <t>Establishing an SSH or TLS session requires server authentication
+              of client credentials in all cases except with RESTCONF, where some 
               client authentication schemes occur after the secure transport connection
               (TLS) has been established.  If transport (SSH or TLS) level client authentication is required, and
               the client is unable to successfully authenticate itself to the server
