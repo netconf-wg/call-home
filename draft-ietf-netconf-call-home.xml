@@ -352,6 +352,15 @@
             encoded in the certificate with an identifier the client was preconfigured 
             to expect.</t>
 
+            <t>Internet facing hosts running NETCONF or RESTCONF call home
+            will be fingerprinted via scanning tools such as `zmap` 
+            <xref target="zmap"/>.  Both SSH and TLS provide many ways
+            in which a device can be fingerprinted.  SSH and TLS servers
+            are fairly mature and able to withstand an attack, but SSH and
+            clients may not be as robust.  Implementers and deployments 
+            needs to ensure that software update mechanisms are provided
+            so that vulnerabilities can be fixed in a timely fashion.</t>
+
             <t>An attacker could launch a denial of service (DoS) attack
 	    on the NETCONF/RESTCONF client by 
             having it perform computationally expensive operations, before
@@ -362,6 +371,9 @@
             This is no different than any secured service and all common 
             precautions apply (e.g., temporarily blacklisting the source address
             after a set number of unsuccessful login attempts).</t>
+
+
+
         </section>
 
         <section title="IANA Considerations" anchor="iana-con">
@@ -503,6 +515,16 @@ Port Number:            PORT-Z
                   </author>
                   <date year="2014" />
               </front>
+          </reference>
+          <reference anchor="zmap" target="https://zmap.io/paper.html">
+              <front>
+                  <title>ZMap: Fast Internet-Wide Scanning and its Security Applications</title>
+                  <author initials="Z.D." surname="Durumeric" fullname="Zakir Durumeric"/>
+                  <author initials="E.W." surname="Wustrow" fullname="Eric Wustrow"/>
+                  <author initials="J.H." surname="Halderman" fullname="J. Alex Halderman"/>
+                  <date year="2013" />
+              </front>
+              <annotation>In proceedings of the 22nd USENIX Security Symposium</annotation>
           </reference>
       </references>
 
