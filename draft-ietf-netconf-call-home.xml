@@ -219,10 +219,9 @@
           <t>
             <list style="format C%d">
               <t>The NETCONF/RESTCONF client listens for TCP connection requests
-	      from NETCONF/RESTCONF servers.  The client MUST default to listening
-              for connections on the IANA-assigned ports defined in
-              <xref target="iana-con"/>,
-	      but MAY be configured to use a non-standard port.</t>
+	      from NETCONF/RESTCONF servers.  The client MUST support accepting
+              TCP connections on the IANA-assigned ports defined in <xref
+              target="iana-con"/>, but MAY be configured to listen a defferent port.</t>
               <t>The NETCONF/RESTCONF client accepts an incoming TCP
               connection request and a TCP connection is established.</t>
               <t>Using this TCP connection, the NETCONF/RESTCONF client 
@@ -286,9 +285,9 @@
           <t>
             <list style="format S%d">
               <t>The NETCONF/RESTCONF server initiates a TCP connection request to
-              the NETCONF/RESTCONF client.  The server MUST default to connecting
+              the NETCONF/RESTCONF client.  The server MUST support connecting
               to one of the IANA-assigned ports defined in <xref target="iana-con"/>,
-              but MAY be configured to use a non-standard port.  Using the IANA-assigned
+              but MAY be configured to connect to a different port.  Using the IANA-assigned
 	      ports, the server connects to port PORT-X for NETCONF over SSH, port 
 	      PORT-Y for NETCONF over TLS, and port PORT-Z for RESTCONF over TLS.</t>
               <t>The TCP connection request is accepted and a TCP connection is
