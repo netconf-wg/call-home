@@ -239,12 +239,15 @@
               comparing the host key or certificate to a previously trusted or 
               "pinned" value.</t>
               <t>If certificate path validation is used, the NETCONF/RESTCONF client MUST
-              ensure that the certificate has a valid chain of trust to a preconfigured 
-              trust anchor and that the certificate encodes an "identifier" 
-              <xref target="RFC6125"/> that the client had awareness of prior to the
-              connection attempt.  How identifiers are encoded in certificates MAY be
-              determined by a policy associated with the certificate's trust anchor.
-              For instance, a given trust anchor may be known to only sign IDevID
+              ensure that the presented certificate has a valid chain of trust to a
+              preconfigured Issuer and that the presented certificate encodes an 
+              "identifier" <xref target="RFC6125"/> that the client had awareness
+              of prior to the connection attempt.  Clients SHOULD ensure that the
+              Issuer used to authenticate the presented certificate defines the
+              namespace for the identifiers of interest.
+              How identifiers are encoded in certificates MAY be
+              determined by a policy associated with the certificate's Issuer.
+              For instance, a given Issuer may be known to only sign IDevID
               certificates <xref target="Std-802.1AR-2009"/> having a unique identifier
               (e.g., serial number) in the X.509 certificate's "CommonName" field.</t>
               <t>After the server's host key or certificate is validated, the SSH or TLS
@@ -261,10 +264,9 @@
           </section>
           <section title="Configuration Data Model">
               <t>How a NETCONF or RESTCONF client is configured is outside the 
-	      scope of this document.  This includes configuration that might
+	      scope of this document.  For instance, such configuration might
 	      be used to enable listening for call home connections, configuring
-	      trust anchors, or configuring identifiers for expected
-              connections.</t>
+	      trust anchors, or configuring identifiers for expected connections.</t>
           </section>
         </section>
 
@@ -345,7 +347,7 @@
 	    and MUST do so independently of the identifiers presented by the service."
 	    To account for these variances, this RFC requires that the 
 	    NETCONF/RESTCONF client validate the SSH host key or certificate via
-            certificate path validation to a preconfigured trust anchor or by 
+            certificate path validation to a preconfigured Issuer certificate or by 
             comparing the host key or certificate to a previously trusted or
             "pinned" value.  Furthermore, if certificate path validation is used, 
             this RFC requires that the client be able to match a presented identifier 
@@ -372,7 +374,17 @@
             precautions apply (e.g., temporarily blacklisting the source address
             after a set number of unsuccessful login attempts).</t>
 
-
+            <t>For cases when the NETCONF/RESTCONF server presents an X.509
+            certificate, the NETCONF/RESTCONF client needs to ensure that
+            the Issuer cartificate used for certificate path validation is
+            unique to the manufacturer of the server (e.g., not a global
+            CA such as Verisign).  This is especially important when the
+            client-authentication mechanism passes a shared secret
+            (e.g., a password) to the server.  Not doing so could otherwise
+            lead to a case where the client sends the shared secret to
+            another device that happens to have the same identity value
+            (e.g., serial number) as the server the client was configured
+            to expect.</t>
 
         </section>
 
