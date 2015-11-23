@@ -395,6 +395,14 @@
             (e.g., serial number) as the server the client was configured
             to expect.</t>
 
+            <t>When using call home with the RESTCONF protocol, special
+            care is required when using some HTTP authentication mechanisms,
+            especially the Basic <xref target="RFC7617"/> and Digest
+            <xref target="RFC7616"/> authentication schemes, which
+            convey a shared key.  Implementations and deployments should
+            be sure to review the Security Considerations section for any
+            client authentication scheme used.</t>
+
         </section>
 
         <section title="IANA Considerations" anchor="iana-con">
