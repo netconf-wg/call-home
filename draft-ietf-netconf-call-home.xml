@@ -356,8 +356,11 @@
 	    on the NETCONF/RESTCONF client by 
             having it perform computationally expensive operations, before
             deducing that the attacker doesn't posses a valid key.
+            For instance, in TLS 1.3 <xref target="draft-ietf-tls-tls13"/>,
+            the ClientHello message contains a Key Share value based
+            on an asymmetric key operation.  
             This is no different than any secured service and all common 
-            precautions apply (e.g., blacklisting the source address
+            precautions apply (e.g., temporarily blacklisting the source address
             after a set number of unsuccessful login attempts).</t>
         </section>
 
@@ -475,6 +478,18 @@ Port Number:            PORT-Z
                   <date month="December" year="2009"/>
               </front>
           </reference>
+
+          <reference anchor="draft-ietf-tls-tls13" target="http://tools.ietf.org/html/draft-ietf-tls-tls13">
+              <front>
+                  <title>The Transport Layer Security (TLS) Protocol Version 1.3</title>
+                  <author initials="E.R." surname="Rescorla"
+                          fullname="Eric Rescorla">
+                      <organization>RTFM, Inc.</organization>
+                  </author>
+                  <date year="2015" />
+              </front>
+          </reference>
+
           <reference anchor="draft-ietf-netconf-server-model" target="http://tools.ietf.org/html/draft-ietf-netconf-server-model">
               <front>
                   <title>NETCONF Server Configuration Model</title>
