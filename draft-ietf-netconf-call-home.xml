@@ -223,8 +223,8 @@
 	      but MAY be configured to use a non-standard port.</t>
               <t>The NETCONF/RESTCONF client accepts an incoming TCP
               connection request and a TCP connection is established.</t>
-              <t>Using this TCP connection, the NETCONF/RESTCONF client MUST immediately
-              start either the SSH-client <xref target="RFC4253"/> or the TLS-client
+              <t>Using this TCP connection, the NETCONF/RESTCONF client 
+              starts either the SSH-client <xref target="RFC4253"/> or the TLS-client
               <xref target="RFC5246"/> protocol.  For example, assuming the use of the 
 	      IANA-assigned ports, the SSH-client protocol is started when the connection
 	      is accepted on port PORT-X and the TLS-client protocol is started when the
@@ -250,7 +250,7 @@
               <t>After the server's host key or certificate is validated, the SSH or TLS
               protocol proceeds as normal to establish a SSH or TLS connection.</t>
               <t>Once the SSH or TLS connection is established, the NETCONF/RESTCONF client
-              MUST immediately start using either the NETCONF-client <xref target="RFC6241"/>
+              starts either the NETCONF-client <xref target="RFC6241"/>
               or RESTCONF-client <xref target="draft-ietf-netconf-restconf"/> protocol. 
               Assuming the use of the IANA-assigned ports, the NETCONF-client protocol is
 	      started when the connection is accepted on either port PORT-X or PORT-Y and
@@ -281,8 +281,8 @@
 	      PORT-Y for NETCONF over TLS, and port PORT-Z for RESTCONF over TLS.</t>
               <t>The TCP connection request is accepted and a TCP connection is
               established.</t>
-              <t>Using this TCP connection, the NETCONF/RESTCONF server MUST immediately
-              start using either the SSH-server <xref target="RFC4253"/> or the TLS-server
+              <t>Using this TCP connection, the NETCONF/RESTCONF server 
+              starts either the SSH-server <xref target="RFC4253"/> or the TLS-server
               <xref target="RFC5246"/> protocol, depending on how it is configured.  For
               example, assuming the use of the IANA-assigned ports, the SSH-server protocol
 	      is used after connecting to the remote port PORT-X and the TLS-server protocol
@@ -301,7 +301,7 @@
               in an amount of time defined by local policy, the server MUST close the
               connection.</t>
               <t>Once the SSH or TLS connection is established, the NETCONF/RESTCONF server
-              MUST immediately start using either the NETCONF-server <xref target="RFC6241"/>
+              starts either the NETCONF-server <xref target="RFC6241"/>
               or RESTCONF-server <xref target="draft-ietf-netconf-restconf"/> protocol, 
               depending on how it is configured.  Assuming the use of the IANA-assigned 
               ports, the NETCONF-server protocol is used after connecting to remote
