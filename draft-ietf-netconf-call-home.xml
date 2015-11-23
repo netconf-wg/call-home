@@ -306,7 +306,7 @@
               <t>In most cases, establishing the SSH or TLS connection also entails
               server authentication of client credentials; only with RESTCONF do some 
               client authentication schemes occur after the secure transport connection
-              (TLS) has been established.  If client authentication is required, and
+              (TLS) has been established.  If transport (SSH or TLS) level client authentication is required, and
               the client is unable to successfully authenticate itself to the server
               in an amount of time defined by local policy, the server MUST close the
               connection.</t>
