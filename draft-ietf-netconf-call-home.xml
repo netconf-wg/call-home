@@ -187,7 +187,8 @@
             In such circumstances, allowing the SSH/TLS server to contact the
             SSH/TLS client would open new vulnerabilities. Any use of call home
             with SSH/TLS for purposes other than NETCONF or RESTCONF will need 
-            a thorough, contextual security analysis.</t>
+            a thorough, contextual security analysis, similar to that
+            performed in the process of publishing this document.</t>
           </section>
 
           <section title="Relation to RFC 4253">
