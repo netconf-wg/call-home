@@ -237,7 +237,11 @@
 	      client MUST validate the server's presented host key or certificate.
               This validation MAY be accomplished by certificate path validation or by
               comparing the host key or certificate to a previously trusted or 
-              "pinned" value.</t>
+              "pinned" value.  If a certificate is presented and it contains
+              revocation checking information, the NETCONF/RESTCONF client
+              SHOULD check the revocation status of the certificate.  If it is
+              determined that a certificate has been revoked, the client MUST
+              immediately close the connection.</t>
               <t>If certificate path validation is used, the NETCONF/RESTCONF client MUST
               ensure that the presented certificate has a valid chain of trust to a
               preconfigured Issuer and that the presented certificate encodes an 
