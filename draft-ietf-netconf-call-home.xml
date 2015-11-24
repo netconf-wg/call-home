@@ -405,9 +405,9 @@
             will be fingerprinted via scanning tools such as `zmap` 
             <xref target="zmap"/>.  Both SSH and TLS provide many ways
             in which a device can be fingerprinted.  SSH and TLS servers
-            are fairly mature and able to withstand an attack, but SSH and
+            are fairly mature and able to withstand an attack, but SSH and TLS
             clients may not be as robust.  Implementers and deployments 
-            needs to ensure that software update mechanisms are provided
+            need to ensure that software update mechanisms are provided
             so that vulnerabilities can be fixed in a timely fashion.</t>
 
             <t>An attacker could launch a denial of service (DoS) attack
@@ -424,8 +424,8 @@
             <t>For cases when the NETCONF/RESTCONF server presents an X.509
             certificate, the NETCONF/RESTCONF client needs to ensure that
             the Issuer cartificate used for certificate path validation is
-            unique to the manufacturer of the server (e.g., not a global
-            CA such as Verisign).  This is especially important when the
+            unique to the manufacturer of the server.
+            This is especially important when the
             client-authentication mechanism passes a shared secret
             (e.g., a password) to the server.  Not doing so could otherwise
             lead to a case where the client sends the shared secret to
@@ -704,7 +704,13 @@ Port Number:            PORT-Z
             </list>
           </t>
         </section>
-
+        <section title="12 to 13">
+          <t>
+            <list style="symbols">
+              <t>Fixed a couple typos and removed the VeriSign example</t>
+            </list>
+          </t>
+        </section>
       </section>
 
       <section title="Open Issues">
