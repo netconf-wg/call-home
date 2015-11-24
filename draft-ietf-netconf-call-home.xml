@@ -209,8 +209,43 @@
             The NETCONF/RESTCONF abbreviation is not intended to require or to imply that
             a client or server must implement both the NETCONF standard and the RESTCONF
             standard.</t>
+            <t><vspace blankLines="3"/></t>
           </section>
+        </section>
 
+
+        <section title="Solution Overview">
+            <t>The diagram below illustrates call home
+            from a protocol layering perspective:</t>
+            <figure>
+              <artwork><![CDATA[
+       NETCONF/RESTCONF                    NETCONF/RESTCONF
+            Server                              Client
+              |                                    |
+              |         1. TCP                     |
+              |----------------------------------->|
+              |                                    |
+              |                                    |
+              |         2. SSH/TLS                 |
+              |<-----------------------------------|
+              |                                    |
+              |                                    |
+              |         3. NETCONF/RESTCONF        |
+              |<-----------------------------------|
+              |                                    |
+
+             Note: arrows point from the "client" to 
+               the "server" at each protocol layer 
+]]></artwork>
+            </figure>
+            <t>This diagram makes the following points:
+              <list style="numbers">
+                <t>The NETCONF/RESTCONF server begins by initiating a TCP connection to the NETCONF/RESTCONF client.</t>
+                <t>Using this TCP connection, the NETCONF/RESTCONF client initiates a SSH/TLS session to the NETCONF/RESTCONF server.</t>
+                <t>Using this SSH/TLS session, the NETCONF/RESTCONF client intiates a NETCONF/RESTCONF session to the NETCONF/RESTCONF server.</t>
+              </list>
+            </t>
+            <t><vspace blankLines="2"/></t> 
         </section>
 
         <section title="The NETCONF or RESTCONF Client">
@@ -276,6 +311,7 @@
 	      scope of this document.  For instance, such configuration might
 	      be used to enable listening for call home connections, configuring
 	      trust anchors, or configuring identifiers for expected connections.</t>
+              <t><vspace blankLines="2"/></t>
           </section>
         </section>
 
