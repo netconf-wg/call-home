@@ -14,6 +14,8 @@
 <!ENTITY rfc6335 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6335.xml">
 <!ENTITY rfc6520 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6520.xml">
 <!ENTITY rfc7589 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7589.xml">
+<!ENTITY rfc7616 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7616.xml">
+<!ENTITY rfc7617 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7617.xml">
 ]>
 
 
@@ -545,6 +547,8 @@ Port Number:            PORT-Z
         <references title="Informative References">
 
           &rfc6020;
+          &rfc7616;
+          &rfc7617;
 
           <reference anchor="Std-802.1AR-2009" target="http://standards.ieee.org/findstds/standard/802.1AR-2009.html">
               <front>
@@ -690,6 +694,13 @@ Port Number:            PORT-Z
           <t>
             <list style="symbols">
               <t>Fixed typo introduced in -10</t>
+            </list>
+          </t>
+        </section>
+        <section title="11 to 12">
+          <t>
+            <list style="symbols">
+              <t>Addresses DISCUSS and COMMENTS from IESG review.</t>
             </list>
           </t>
         </section>
