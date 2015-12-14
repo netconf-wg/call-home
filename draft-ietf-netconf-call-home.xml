@@ -81,12 +81,6 @@
               <t><spanx style="verb">PORT-Z</spanx> --&gt; the assigned port value for "restconf-ch-tls"</t>
             </list>
           </t>
-          <t>The following two Appendix sections are to be removed prior to publication:
-            <list  style="symbols">
-              <t>Appendix A.  Change Log</t>
-              <t>Appendix B.  Open Issues</t>
-            </list>
-          </t>
         </note>
       </front>
 
@@ -115,7 +109,7 @@
 
           <t>Both NETCONF Call Home and RESTCONF Call Home preserve all but one 
           of the client/server roles in their respective protocol stacks, as 
-          compared to client-initiated NETCONF and RESTCONF connections.  The one and only
+          compared to client initiated NETCONF and RESTCONF connections.  The one and only
           role reversal that occurs is at the TCP layer; that is, which peer is
           the TCP-client and which is the TCP-server.</t>
 
@@ -244,7 +238,7 @@
               <list style="numbers">
                 <t>The NETCONF/RESTCONF server begins by initiating a TCP connection to the NETCONF/RESTCONF client.</t>
                 <t>Using this TCP connection, the NETCONF/RESTCONF client initiates a SSH/TLS session to the NETCONF/RESTCONF server.</t>
-                <t>Using this SSH/TLS session, the NETCONF/RESTCONF client intiates a NETCONF/RESTCONF session to the NETCONF/RESTCONF server.</t>
+                <t>Using this SSH/TLS session, the NETCONF/RESTCONF client initates a NETCONF/RESTCONF session to the NETCONF/RESTCONF server.</t>
               </list>
             </t>
             <t><vspace blankLines="2"/></t> 
@@ -258,7 +252,7 @@
               <t>The NETCONF/RESTCONF client listens for TCP connection requests
 	      from NETCONF/RESTCONF servers.  The client MUST support accepting
               TCP connections on the IANA-assigned ports defined in <xref
-              target="iana-con"/>, but MAY be configured to listen a defferent port.</t>
+              target="iana-con"/>, but MAY be configured to listen a different port.</t>
               <t>The NETCONF/RESTCONF client accepts an incoming TCP
               connection request and a TCP connection is established.</t>
               <t>Using this TCP connection, the NETCONF/RESTCONF client 
@@ -294,7 +288,7 @@
               (e.g., serial number) in the X.509 certificate's "CommonName" field.</t>
               <t>After the server's host key or certificate is validated, the SSH or TLS
               protocol proceeds as normal to establish a SSH or TLS connection.
-              When performing client-authentcation with the NETCONF/RESTCONF
+              When performing client authentication with the NETCONF/RESTCONF
               server, the NETCONF/RESTCONF client MUST ensure to only use
               credentials that it had previously associated for the NETCONF/RESTCONF
               server’s presented host key or server certificate.</t>
@@ -410,7 +404,7 @@
             unique to the manufacturer of the server.  That is, the certificate
             should not belong to a 3rd-party certificate authority that
             might issue intermediate certificates for more than one manufacturer.
-            This is especially important when a client-authentication mechanism
+            This is especially important when a client authentication mechanism
             passing a shared secret (e.g., a password) to the server is used.
             Not doing so could otherwise lead to a case where the client sends
             the shared secret to another server that happens to have the same
@@ -491,11 +485,14 @@ Port Number:            PORT-Z
         <section title="Acknowledgements">
             <t>The author would like to thank the following for
             lively discussions on list and in the halls (ordered
-            by last name): Andy Bierman, Martin Bjorklund, Mehmet Ersue,
+            by last name): Jari Arkko, Andy Bierman, Martin Bjorklund,
+            Ben Campbell, Spencer Dawkins, Mehmet Ersue, Stephen Farrell, 
             Wes Hardaker, Stephen Hanna, David Harrington, Jeffrey Hutzelman,
-            Radek Krejci, Alan Luchuk, Mouse, Russ Mundy, Tom Petch, 
-            Juergen Schoenwaelder, Peter Saint-Andre, Joe Touch, 
-	    Hannes Tschofenig, Sean Turner, and Bert Wijnen.</t>
+            Simon Josefsson, Radek Krejci, Suresh Krishnan, Barry Leiba,
+            Alan Luchuk, Kathleen Moriarty, Mouse, Russ Mundy, Tom Petch, 
+            Peter Saint-Andre, Joseph Salowey, Juergen Schoenwaelder,
+            Martin Stiemerling, Joe Touch, Hannes Tschofenig, Sean Turner,
+            and Bert Wijnen.</t>
         </section>
 
     </middle>
@@ -602,133 +599,6 @@ Port Number:            PORT-Z
               <annotation>In proceedings of the 22nd USENIX Security Symposium</annotation>
           </reference>
       </references>
-
-      <section title="Change Log">
-        <section title="00 to 01">
-          <t>
-            <list style="symbols">
-              <t>The term "TCP connection" is now used throughout.</t>
-              <t>The terms "network element" and "management system" are now only used in the Motivation section.</t>
-              <t>Restructured doc a little to create an Introduction section.</t>
-              <t>Fixed reference in Applicability Statement so it would work
-              equally well for SSH and TLS.</t>
-              <t>Fixed reported odd wording and three references.</t>
-            </list>
-          </t>
-        </section>
-        <section title="01 to 02">
-          <t>
-            <list style="symbols">
-              <t>Added call home support for the RESTCONF protocol.</t>
-              <t>Fixed paragraph 3 of Security Considerations to equally
-              apply to the TLS protocol.</t> 
-            </list>
-          </t>
-        </section>
-        <section title="02 to 03">
-          <t>
-            <list style="symbols">
-              <t>Tried to improve readability (issue #6)</t>
-              <t>Removed "FIXME" in section 1.3 (issue #7)</t>
-              <t>Added RFC Editor notes (issue #8)</t>
-              <t>Removed "TCP session" term (issue #9)</t>
-              <t>Improved language for usage of IANA-assigned ports (issue #10)</t>
-            </list>
-          </t>
-        </section>
-        <section title="03 to 04">
-          <t>
-            <list style="symbols">
-              <t>Replaced "verify credentials" with "verify identity" (issue #11)</t>
-            </list>
-          </t>
-        </section>
-        <section title="04 to 05">
-          <t>
-            <list style="symbols">
-              <t>Applied many suggestions from WGLC</t>
-              <t>Removed essay like "Server Identification and Verification" section</t>
-              <t>Added text about keep-alives</t>
-              <t>Added Configuration Data Model section for client protocol</t>
-              <t>Improved Security Considerations section</t>
-            </list>
-          </t>
-        </section>
-        <section title="05 to 06">
-          <t>
-            <list style="symbols">
-              <t>Addressed comments raised by Alan Luchuk.</t>
-            </list>
-          </t>
-        </section>
-        <section title="06 to 07">
-          <t>
-            <list style="symbols">
-              <t>replaced "reference identifier" with "identifier"</t>
-              <t>added reference to RFC6125</t>
-              <t>moved reference to 6020 to Informative section</t>
-            </list>
-          </t>
-        </section>
-        <section title="07 to 08">
-          <t>
-            <list style="symbols">
-              <t>Added text regarding client authentication</t>
-              <t>Now says client-initiated (not standard) NETCONF/RESTCONF connections</t>
-              <t>Now says server must send all (not any) intermediate certificates</t>
-              <t>Improved wording based on suggestions from Jonathan and Tom</t>
-            </list>
-          </t>
-        </section>
-        <section title="08 to 09">
-          <t>
-            <list style="symbols">
-              <t>Added dynamic DNS as an example for an IP mapping service</t>
-              <t>Replaced draft-ietf-netconf-rfc5539bis with RFC7589</t>
-              <t>Recharacterized this draft's relationship to RFC4253</t>
-            </list>
-          </t>
-        </section>
-        <section title="09 to 10">
-          <t>
-            <list style="symbols">
-              <t>Updates from AD review</t>
-            </list>
-          </t>
-        </section>
-        <section title="10 to 11">
-          <t>
-            <list style="symbols">
-              <t>Fixed typo introduced in -10</t>
-            </list>
-          </t>
-        </section>
-        <section title="11 to 12">
-          <t>
-            <list style="symbols">
-              <t>Addresses DISCUSS and COMMENTS from IESG review.</t>
-            </list>
-          </t>
-        </section>
-        <section title="12 to 13">
-          <t>
-            <list style="symbols">
-              <t>Fixed a couple typos and removed the VeriSign example</t>
-            </list>
-          </t>
-        </section>
-        <section title="13 to 14">
-          <t>
-            <list style="symbols">
-              <t>Addressed final DISCUSS item from IESG review</t>
-            </list>
-          </t>
-        </section>
-      </section>
-
-      <section title="Open Issues">
-        <t>All issues with this draft are tracked using GitHub issues.  Please see: https://github.com/netconf-wg/call-home/issues to see currently opened issues.</t>
-      </section>
     </back>
 
 </rfc>
