@@ -394,7 +394,7 @@
 
             <t>Risks associated with these variances are centered around server
             authentication and the inability for clients to compare an independently
-            constructed reference idenitifier to one presented by the server.
+            constructed reference identifier to one presented by the server.
 	    To mitigate these risks, this RFC requires that the 
 	    NETCONF/RESTCONF client validate the server's SSH host key or 
             certificate, by certificate path validation to a preconfigured Issuer
