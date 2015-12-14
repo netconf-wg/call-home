@@ -189,8 +189,8 @@
             In such circumstances, allowing the SSH/TLS server to contact the
             SSH/TLS client would open new vulnerabilities. Any use of call home
             with SSH/TLS for purposes other than NETCONF or RESTCONF will need 
-            a thorough, contextual security analysis, similar to that
-            performed in the process of publishing this document.</t>
+            a thorough contextual risk assessment.  A risk assessment for this
+            RFC is in the Security Considerations section (<xref target="sec-con"/>).</t>
           </section>
 
           <section title="Relation to RFC 4253">
@@ -361,9 +361,9 @@
               the connection using a keep-alive mechanism.  For TLS based connections,
               the NETCONF/RESTCONF server
               SHOULD send HeartbeatRequest messages, as defined by <xref target="RFC6520"/>.
-              For SSH based connections, per section 4 of <xref target="RFC4254"/>, the 
+              For SSH based connections, per Section 4 of <xref target="RFC4254"/>, the 
               NETCONF/RESTCONF server SHOULD send a SSH_MSG_GLOBAL_REQUEST message
-              with the purposely nonexistent "request name" value "keepalive@ietf.org"
+              with a purposely nonexistent "request name" value (e.g., keepalive@ietf.org)
               and the "want reply" value set to '1'.</t>
             </list>
           </t>
@@ -380,9 +380,8 @@
 
         <section anchor="sec-con" title="Security Considerations">
 
-            <t>The security considerations described in 
-            <xref target="RFC6242"/> and <xref target="RFC7589"/>,
-            and by extension <xref target="RFC4253"/>, 
+            <t>The security considerations described in <xref target="RFC6242"/>
+            and <xref target="RFC7589"/>, and by extension <xref target="RFC4253"/>, 
             <xref target="RFC5246"/>, and <xref target="draft-ietf-netconf-restconf"/>
             apply here as well.</t>
 
@@ -391,55 +390,62 @@
             is incongruous with <xref target="RFC4253"/>, which says "the client
 	    initiates the connection" and also <xref target="RFC6125"/>, which says
 	    "the client MUST construct a list of acceptable reference identifiers,
-	    and MUST do so independently of the identifiers presented by the service."
-	    To account for these variances, this RFC requires that the 
-	    NETCONF/RESTCONF client validate the SSH host key or certificate via
-            certificate path validation to a preconfigured Issuer certificate or by 
-            comparing the host key or certificate to a previously trusted or
-            "pinned" value.  Furthermore, if certificate path validation is used, 
-            this RFC requires that the client be able to match a presented identifier 
-            encoded in the certificate with an identifier the client was preconfigured 
-            to expect.</t>
+	    and MUST do so independently of the identifiers presented by the service."</t>
+
+            <t>Risks associated with these variances are centered around server
+            authentication and the inability for clients to compare an independently
+            constructed reference idenitifier to one presented by the server.
+	    To mitigate these risks, this RFC requires that the 
+	    NETCONF/RESTCONF client validate the server's SSH host key or 
+            certificate, by certificate path validation to a preconfigured Issuer
+            certificate, or by comparing the host key or certificate to a 
+            previously trusted or "pinned" value.  Furthermore, when a certificate
+            is used, this RFC requires that the client be able to match an 
+            identifier encoded in the presented certificate with an identifier
+            the client was preconfigured to expect (e.g., serial number).</t>
+
+            <t>For cases when the NETCONF/RESTCONF server presents an X.509
+            certificate, NETCONF/RESTCONF clients should ensure that the 
+            Issuer certificate used for certificate path validation is 
+            unique to the manufacturer of the server.  That is, the certificate
+            should not belong to a 3rd-party certificate authority that
+            might issue intermediate certificates for more than one manufacturer.
+            This is especially important when a client-authentication mechanism
+            passing a shared secret (e.g., a password) to the server is used.
+            Not doing so could otherwise lead to a case where the client sends
+            the shared secret to another server that happens to have the same
+            identity (e.g., serial number) as the server the client was
+            configured to expect.</t>
+
+            <t>Considerations not associated with server authentication follow next.</t>
 
             <t>Internet facing hosts running NETCONF or RESTCONF call home
             will be fingerprinted via scanning tools such as `zmap` 
             <xref target="zmap"/>.  Both SSH and TLS provide many ways
-            in which a device can be fingerprinted.  SSH and TLS servers
-            are fairly mature and able to withstand an attack, but SSH and TLS
+            in which a host can be fingerprinted.  SSH and TLS servers
+            are fairly mature and able to withstand attacks, but SSH and TLS
             clients may not be as robust.  Implementers and deployments 
             need to ensure that software update mechanisms are provided
             so that vulnerabilities can be fixed in a timely fashion.</t>
 
             <t>An attacker could launch a denial of service (DoS) attack
-	    on the NETCONF/RESTCONF client by 
-            having it perform computationally expensive operations, before
-            deducing that the attacker doesn't posses a valid key.
-            For instance, in TLS 1.3 <xref target="draft-ietf-tls-tls13"/>,
-            the ClientHello message contains a Key Share value based
-            on an asymmetric key operation.  
-            This is similar to any other secured service and all common 
-            precautions apply (e.g., temporarily blacklisting the source address
-            after a set number of unsuccessful login attempts).</t>
-
-            <t>For cases when the NETCONF/RESTCONF server presents an X.509
-            certificate, the NETCONF/RESTCONF client needs to ensure that
-            the Issuer cartificate used for certificate path validation is
-            unique to the manufacturer of the server.
-            This is especially important when the
-            client-authentication mechanism passes a shared secret
-            (e.g., a password) to the server.  Not doing so could otherwise
-            lead to a case where the client sends the shared secret to
-            another device that happens to have the same identity value
-            (e.g., serial number) as the server the client was configured
-            to expect.</t>
+	    on the NETCONF/RESTCONF client by having it perform 
+            computationally expensive operations, before deducing that
+            the attacker doesn't posses a valid key.  For instance, in
+            TLS 1.3 <xref target="draft-ietf-tls-tls13"/>, the ClientHello
+            message contains a Key Share value based on an expensive
+            asymmetric key operation.  Common precautions mitigating DoS
+            attacks are recommended, such as temporarily blacklisting
+            the source address after a set number of unsuccessful login
+            attempts.</t>
 
             <t>When using call home with the RESTCONF protocol, special
-            care is required when using some HTTP authentication mechanisms,
+            care is required when using some HTTP authentication schemes,
             especially the Basic <xref target="RFC7617"/> and Digest
-            <xref target="RFC7616"/> authentication schemes, which
-            convey a shared key.  Implementations and deployments should
-            be sure to review the Security Considerations section for any
-            client authentication scheme used.</t>
+            <xref target="RFC7616"/> schemes, which convey a shared key.
+            Implementations and deployments should be sure to review the
+            Security Considerations section in the RFC for any HTTP client
+            authentication scheme used.</t>
 
         </section>
 
