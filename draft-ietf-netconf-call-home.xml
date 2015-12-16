@@ -252,7 +252,7 @@
               <t>The NETCONF/RESTCONF client listens for TCP connection requests
 	      from NETCONF/RESTCONF servers.  The client MUST support accepting
               TCP connections on the IANA-assigned ports defined in <xref
-              target="iana-con"/>, but MAY be configured to listen a different port.</t>
+              target="iana-con"/>, but MAY be configured to listen to a different port.</t>
               <t>The NETCONF/RESTCONF client accepts an incoming TCP
               connection request and a TCP connection is established.</t>
               <t>Using this TCP connection, the NETCONF/RESTCONF client 
@@ -276,14 +276,12 @@
               immediately close the connection.</t>
               <t>If certificate path validation is used, the NETCONF/RESTCONF client MUST
               ensure that the presented certificate has a valid chain of trust to a
-              preconfigured Issuer and that the presented certificate encodes an 
+              preconfigured issuer certificate, and that the presented certificate encodes an 
               "identifier" <xref target="RFC6125"/> that the client had awareness
-              of prior to the connection attempt.  Clients SHOULD ensure that the
-              Issuer used to authenticate the presented certificate defines the
-              namespace for the identifiers of interest.
+              of prior to the connection attempt.
               How identifiers are encoded in certificates MAY be
-              determined by a policy associated with the certificate's Issuer.
-              For instance, a given Issuer may be known to only sign IDevID
+              determined by a policy associated with the certificate's issuer.
+              For instance, a given issuer may be known to only sign IDevID
               certificates <xref target="Std-802.1AR-2009"/> having a unique identifier
               (e.g., serial number) in the X.509 certificate's "CommonName" field.</t>
               <t>After the server's host key or certificate is validated, the SSH or TLS
@@ -306,7 +304,8 @@
               <t>How a NETCONF or RESTCONF client is configured is outside the 
 	      scope of this document.  For instance, such configuration might
 	      be used to enable listening for call home connections, configuring
-	      trust anchors, or configuring identifiers for expected connections.</t>
+	      trusted certificate issuers, or configuring identifiers for
+              expected connections.</t>
               <t><vspace blankLines="2"/></t>
           </section>
         </section>
@@ -333,9 +332,9 @@
               <t>As part of establishing the SSH or TLS connection, the NETCONF/RESTCONF
               server will send its host key or certificate to the client.  If a certificate
               is sent, the server MUST also send all intermediate certificates leading up
-              to the certificate's trust anchor.  How to send a list of certificates is 
-              defined for SSH in <xref target="RFC6187"/> Section 2.1, and for TLS in 
-              <xref target="RFC5246"/> Section 7.4.2.</t>
+              to a well known and trusted issuer.  How to send a
+              list of certificates is defined for SSH in <xref target="RFC6187"/> Section
+              2.1, and for TLS in <xref target="RFC5246"/> Section 7.4.2.</t>
               <t>Establishing an SSH or TLS session requires server authentication
               of client credentials in all cases except with RESTCONF, where some 
               client authentication schemes occur after the secure transport connection
@@ -391,7 +390,7 @@
             constructed reference identifier to one presented by the server.
 	    To mitigate these risks, this RFC requires that the 
 	    NETCONF/RESTCONF client validate the server's SSH host key or 
-            certificate, by certificate path validation to a preconfigured Issuer
+            certificate, by certificate path validation to a preconfigured issuer
             certificate, or by comparing the host key or certificate to a 
             previously trusted or "pinned" value.  Furthermore, when a certificate
             is used, this RFC requires that the client be able to match an 
@@ -400,10 +399,10 @@
 
             <t>For cases when the NETCONF/RESTCONF server presents an X.509
             certificate, NETCONF/RESTCONF clients should ensure that the 
-            Issuer certificate used for certificate path validation is 
+            issuer certificate used for certificate path validation is 
             unique to the manufacturer of the server.  That is, the certificate
             should not belong to a 3rd-party certificate authority that
-            might issue intermediate certificates for more than one manufacturer.
+            might issue certificates for more than one manufacturer.
             This is especially important when a client authentication mechanism
             passing a shared secret (e.g., a password) to the server is used.
             Not doing so could otherwise lead to a case where the client sends
@@ -425,7 +424,7 @@
             <t>An attacker could launch a denial of service (DoS) attack
 	    on the NETCONF/RESTCONF client by having it perform 
             computationally expensive operations, before deducing that
-            the attacker doesn't posses a valid key.  For instance, in
+            the attacker doesn't possess a valid key.  For instance, in
             TLS 1.3 <xref target="draft-ietf-tls-tls13"/>, the ClientHello
             message contains a Key Share value based on an expensive
             asymmetric key operation.  Common precautions mitigating DoS
@@ -436,10 +435,10 @@
             <t>When using call home with the RESTCONF protocol, special
             care is required when using some HTTP authentication schemes,
             especially the Basic <xref target="RFC7617"/> and Digest
-            <xref target="RFC7616"/> schemes, which convey a shared key.
-            Implementations and deployments should be sure to review the
-            Security Considerations section in the RFC for any HTTP client
-            authentication scheme used.</t>
+            <xref target="RFC7616"/> schemes, which convey a shared secret
+            (e.g., a password).  Implementations and deployments should 
+            be sure to review the Security Considerations section in the
+            RFC for any HTTP client authentication scheme used.</t>
 
         </section>
 
